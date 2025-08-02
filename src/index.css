@@ -1,0 +1,210 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Sono:wght@200..800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 0%; /* Pure Black */
+    --foreground: 0 0% 100%; /* Pure White for text */
+    --card: 0 0% 100%; /* Pure White for containers */
+    --card-foreground: 0 0% 20%; /* Charcoal for text on white cards */
+    --popover: 0 0% 100%; /* Pure White for overlays */
+    --popover-foreground: 0 0% 20%; /* Charcoal for text */
+    --primary: 191 100% 43%; /* Bright Cyan #00B8D9 */
+    --primary-foreground: 0 0% 100%; /* White text on cyan */
+    --secondary: 208 15% 57%; /* Light Slate Gray #6C7A89 */
+    --secondary-foreground: 0 0% 100%; /* White text on secondary */
+    --muted: 210 20% 97%; /* Soft White #F6F8FA */
+    --muted-foreground: 208 15% 57%; /* Light Slate Gray for muted text */
+    --accent: 191 100% 43%; /* Bright Cyan for accents */
+    --accent-foreground: 0 0% 100%; /* White text on accent */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 213 27% 84%; /* Light Gray #E1E4E8 */
+    --input: 0 0% 100%; /* Pure White for form fields */
+    --ring: 191 100% 43%; /* Cyan for focus rings */
+    --sidebar-background: 211 39% 15%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 191 100% 43%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 208 15% 57%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 213 27% 84%;
+    --sidebar-ring: 191 100% 43%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+@layer components {
+  .text-mask-image {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .pulse-chip {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-pulse-100 text-pulse-600 border border-pulse-200;
+  }
+
+  .section-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl font-display font-bold tracking-tight;
+  }
+
+  .section-subtitle {
+    @apply text-lg md:text-xl text-muted-foreground mt-4 max-w-3xl;
+  }
+
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-sm border border-card/20 rounded-2xl shadow-elegant transition-all duration-300 hover:shadow-elegant-hover;
+  }
+
+  .feature-card {
+    @apply p-6 rounded-2xl transition-all duration-500 hover:translate-y-[-5px];
+  }
+
+  .button-primary {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .button-secondary {
+    @apply bg-transparent border border-border hover:border-primary text-foreground hover:text-primary font-medium py-3 px-6 rounded-full transition-all duration-300;
+  }
+
+  .nav-link {
+    @apply relative text-foreground hover:text-primary py-2 transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all hover:after:w-full;
+  }
+}
+
+.image-scale-in {
+  animation: scaleIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.fadeIn {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+
+.stagger-4 {
+  animation-delay: 0.4s;
+}
+
+.hover-lift {
+  transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+}
+
+/* Parallax effect */
+.parallax {
+  transform: translateY(var(--parallax-y, 0));
+  transition: transform 0.1s ease-out;
+}
+
+/* Marquee animation */
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer utilities {
+  @keyframes moveBlob {
+    0% {
+      transform: scale(1) translate(0px, 0px);
+    }
+    33% {
+      transform: scale(1.1) translate(30px, -50px);
+    }
+    66% {
+      transform: scale(0.9) translate(-20px, 20px);
+    }
+    100% {
+      transform: scale(1) translate(0px, 0px);
+    }
+  }
+
+  .blob-animation {
+    animation: moveBlob 20s infinite ease-in-out;
+  }
+}

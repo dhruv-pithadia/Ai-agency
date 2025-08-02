@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    /* Base Options */
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "skipLibCheck": true,
+    "strict": true,
+
+    /* Module System - THE CORE FIX */
+    // This ensures your .ts files are compiled into modern JavaScript that Vercel's environment understands.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext", // Use the modern Node.js module resolution strategy.
+
+    /* Output - THE OTHER CORE FIX */
+    // We must remove "noEmit": true. By default, TypeScript will now correctly
+    // generate the necessary .js files for your API functions.
+    // "noEmit" is now false by default.
+
+    /* Interoperability */
+    "isolatedModules": true, // Good practice for modern tooling.
+    "esModuleInterop": true // Recommended for compatibility with all libraries.
+  },
+  
+  /* File Scope - THE FINAL PIECE */
+  // We explicitly tell this configuration to process all TypeScript files
+  // inside the `api` folder, in addition to the vite config.
+  "include": ["vite.config.mts", "api/**/*.ts", "api/send-email.ts"]
+}
