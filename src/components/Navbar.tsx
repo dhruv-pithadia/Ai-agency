@@ -89,7 +89,7 @@ const Navbar = () => {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           "py-2 sm:py-3 md:py-4 lg:py-4",
-          isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm border-b border-border/50" : "bg-transparent",
+          isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm border-b border-border/50" : "bg-background/80",
         )}
       >
         <div className="container flex items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 max-w-7xl mx-auto">
@@ -104,7 +104,7 @@ const Navbar = () => {
             aria-label="AI Spaces"
           >
             <div className="relative">
-              <div className="w-[60px] h-[60px] ml-4 sm:w-[60px] sm:ml-4 sm:h-[60px] md:ml-4 md:w-[100px] md:h-[100px] lg:w-[40px] lg:h-[40px] bg-transparent rounded-lg flex items-center justify-center scale-[3] transition-transform duration-300">
+              <div className="w-[60px] mt-2 h-[60px] ml-4 sm:w-[60px] sm:ml-4 sm:h-[60px] md:ml-4 md:w-[100px] md:h-[100px] lg:w-[40px] lg:h-[40px] bg-transparent rounded-lg flex items-center justify-center scale-[5] transition-transform duration-300">
                 <img
                   src="/Creator-space.png"
                   alt="Sparkle Icon"

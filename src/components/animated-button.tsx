@@ -1,10 +1,9 @@
-"use client"
-
-import { motion } from "framer-motion"
+"use client";
+import { motion } from 'framer-motion';
 
 interface GlowingButtonProps {
-  text: string
-  href: string
+  text: string;
+  href: string;
 }
 
 export default function GlowingButton({ text, href }: GlowingButtonProps) {
@@ -19,9 +18,7 @@ export default function GlowingButton({ text, href }: GlowingButtonProps) {
       {/* Animated Pulsing Glow - Only visible on hover */}
       <motion.div
         className="absolute -inset-1 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 blur"
-        style={{
-          zIndex: 0,
-        }}
+        style={{ zIndex: 0 }}
         initial={{ opacity: 0, scale: 1 }}
         variants={{
           hover: {
@@ -31,20 +28,17 @@ export default function GlowingButton({ text, href }: GlowingButtonProps) {
         }}
         transition={{
           duration: 0.3,
-          ease: "easeInOut",
+          ease: 'easeInOut',
         }}
       />
-
       {/* Main button */}
       <motion.a
         href={href}
         className="relative flex items-center justify-center group w-full text-center bg-primary text-white rounded-full cursor-pointer text-sm leading-5 px-5 py-3 z-10"
-        whileHover={{
-          scale: 1.02,
-        }}
+        whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         transition={{
-          type: "spring",
+          type: 'spring',
           stiffness: 400,
           damping: 17,
         }}
@@ -52,5 +46,5 @@ export default function GlowingButton({ text, href }: GlowingButtonProps) {
         <span className="relative text-base z-10 font-nunito">{text}</span>
       </motion.a>
     </motion.div>
-  )
+  );
 }
