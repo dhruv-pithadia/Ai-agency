@@ -104,7 +104,7 @@ const Navbar = () => {
             aria-label="AI Spaces"
           >
             <div className="relative">
-              <div className="w-[60px] mt-2 h-[60px] ml-4 sm:w-[60px] sm:ml-4 sm:h-[60px] md:ml-4 md:w-[100px] md:h-[100px] lg:w-[40px] lg:h-[40px] bg-transparent rounded-lg flex items-center justify-center scale-[5] transition-transform duration-300">
+              <div className="scale-[3] sm:scale-[3] md:scale-[2] lg:scale-[4] xl:scale-[5] w-[60px] mt-2 h-[60px] ml-4 sm:w-[60px] sm:ml-4 sm:h-[60px] md:ml-4 md:w-[100px] md:h-[100px] lg:w-[40px] lg:h-[40px] bg-transparent rounded-lg flex items-center justify-center transition-transform duration-300">
                 <img
                   src="/Creator-space.png"
                   alt="Sparkle Icon"

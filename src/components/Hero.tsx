@@ -45,7 +45,7 @@ const Hero = () => {
       className="relative min-h-screen overflow-hidden"
       aria-label="Hero section"
     >
-      <div style={{ width: "100%", height: "710px", position: "absolute" }}>
+      <div style={{ width: "100%", height: "1000px", position: "absolute" }}>
           <Galaxy
             mouseRepulsion={true}
             mouseInteraction={true}
