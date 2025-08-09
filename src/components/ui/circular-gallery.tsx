@@ -1,7 +1,15 @@
 "use client";
 
-import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from "ogl";
 import { useEffect, useRef } from "react";
+import {
+  Camera,
+  Mesh,
+  Plane,
+  Program,
+  Renderer,
+  Texture,
+  Transform,
+} from "ogl";
 
 type GL = Renderer["gl"];
 
@@ -28,33 +36,38 @@ function autoBind(instance: any): void {
 
 function getFontSize(font: string): number {
   const match = font.match(/(\d+)px/);
-  return match ? parseInt(match[1], 10) : 30;
+  return match ? Number.parseInt(match[1], 10) : 30;
 }
 
 function createTextTexture(
   gl: GL,
   text: string,
-  font: string = "bold 30px monospace",
-  color: string = "black"
+  font = "bold 30px monospace",
+  color = "black"
 ): { texture: Texture; width: number; height: number } {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Could not get 2d context");
+
   context.font = font;
   const metrics = context.measureText(text);
   const textWidth = Math.ceil(metrics.width);
   const fontSize = getFontSize(font);
   const textHeight = Math.ceil(fontSize * 1.2);
+
   canvas.width = textWidth + 20;
   canvas.height = textHeight + 20;
+
   context.font = font;
   context.fillStyle = color;
   context.textBaseline = "middle";
   context.textAlign = "center";
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.fillText(text, canvas.width / 2, canvas.height / 2);
+
   const texture = new Texture(gl, { generateMipmaps: false });
   texture.image = canvas;
+
   return { texture, width: canvas.width, height: canvas.height };
 }
 
@@ -104,35 +117,35 @@ class Title {
     const geometry = new Plane(this.gl);
     const program = new Program(this.gl, {
       vertex: `
-        attribute vec3 position;
-        attribute vec2 uv;
-        uniform mat4 modelViewMatrix;
-        uniform mat4 projectionMatrix;
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
+      attribute vec3 position;
+      attribute vec2 uv;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projectionMatrix;
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
       fragment: `
-        precision highp float;
-        uniform sampler2D tMap;
-        varying vec2 vUv;
-        void main() {
-          vec4 color = texture2D(tMap, vUv);
-          if (color.a < 0.1) discard;
-          gl_FragColor = color;
-        }
-      `,
+      precision highp float;
+      uniform sampler2D tMap;
+      varying vec2 vUv;
+      void main() {
+        vec4 color = texture2D(tMap, vUv);
+        if (color.a < 0.1) discard;
+        gl_FragColor = color;
+      }
+    `,
       uniforms: { tMap: { value: texture } },
       transparent: true,
     });
-
     this.mesh = new Mesh(this.gl, { geometry, program });
 
     const aspect = width / height;
     const textHeightScaled = this.plane.scale.y * 0.15;
     const textWidthScaled = textHeightScaled * aspect;
+
     this.mesh.scale.set(textWidthScaled, textHeightScaled, 1);
     this.mesh.position.y =
       -this.plane.scale.y * 0.5 - textHeightScaled * 0.5 - 0.05;
@@ -148,6 +161,7 @@ interface Viewport {
   width: number;
   height: number;
 }
+
 interface MediaProps {
   geometry: Plane;
   gl: GL;
@@ -163,10 +177,14 @@ interface MediaProps {
   textColor: string;
   borderRadius?: number;
   font?: string;
+  skewStrength?: number;
+  depthStrength?: number;
+  curveYStrength?: number;
+  gapEqualize?: number;
 }
 
 class Media {
-  extra: number = 0;
+  extra = 0;
   geometry: Plane;
   gl: GL;
   image: string;
@@ -189,13 +207,18 @@ class Media {
   width!: number;
   widthTotal!: number;
   x!: number;
-  speed: number = 0;
-  isBefore: boolean = false;
-  isAfter: boolean = false;
-
-  // new: store base plane scale for dynamic scaling per position
+  speed = 0;
+  isBefore = false;
+  isAfter = false;
   baseScaleX!: number;
   baseScaleY!: number;
+  R!: number;
+  thetaMax!: number;
+  bendSign!: number;
+  skewStrength: number;
+  depthStrength: number;
+  curveYStrength: number;
+  gapEqualize: number;
 
   constructor({
     geometry,
@@ -212,6 +235,10 @@ class Media {
     textColor,
     borderRadius = 0,
     font,
+    skewStrength,
+    depthStrength,
+    curveYStrength,
+    gapEqualize,
   }: MediaProps) {
     this.geometry = geometry;
     this.gl = gl;
@@ -227,6 +254,10 @@ class Media {
     this.textColor = textColor;
     this.borderRadius = borderRadius;
     this.font = font;
+    this.skewStrength = skewStrength ?? 3.0;
+    this.depthStrength = depthStrength ?? 2.0;
+    this.curveYStrength = curveYStrength ?? 1.25;
+    this.gapEqualize = gapEqualize ?? 0.65; // 0 = no equalization, 1 = strong
 
     this.createShader();
     this.createMesh();
@@ -237,63 +268,58 @@ class Media {
   createShader() {
     const texture = new Texture(this.gl, { generateMipmaps: false });
 
+    // Stable geometry (no wobble)
     this.program = new Program(this.gl, {
       depthTest: false,
       depthWrite: false,
       vertex: `
-        precision highp float;
-        attribute vec3 position;
-        attribute vec2 uv;
-        uniform mat4 modelViewMatrix;
-        uniform mat4 projectionMatrix;
-        uniform float uTime;
-        uniform float uSpeed;
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          vec3 p = position;
-          p.z = (sin(p.x * 4.0 + uTime) * 1.5 + cos(p.y * 2.0 + uTime) * 1.5) * (0.1 + uSpeed * 0.5);
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
-        }
-      `,
+      precision highp float;
+      attribute vec3 position;
+      attribute vec2 uv;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projectionMatrix;
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
       fragment: `
-        precision highp float;
-        uniform vec2 uImageSizes;
-        uniform vec2 uPlaneSizes;
-        uniform sampler2D tMap;
-        uniform float uBorderRadius;
-        varying vec2 vUv;
+      precision highp float;
+      uniform vec2 uImageSizes;
+      uniform vec2 uPlaneSizes;
+      uniform sampler2D tMap;
+      uniform float uBorderRadius;
+      varying vec2 vUv;
 
-        float roundedBoxSDF(vec2 p, vec2 b, float r) {
-          vec2 d = abs(p) - b;
-          return length(max(d, vec2(0.0))) + min(max(d.x, d.y), 0.0) - r;
-        }
+      float roundedBoxSDF(vec2 p, vec2 b, float r) {
+        vec2 d = abs(p) - b;
+        return length(max(d, vec2(0.0))) + min(max(d.x, d.y), 0.0) - r;
+      }
 
-        void main() {
-          vec2 ratio = vec2(
-            min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),
-            min((uPlaneSizes.y / uPlaneSizes.x) / (uImageSizes.y / uImageSizes.x), 1.0)
-          );
-          vec2 uv = vec2(
-            vUv.x * ratio.x + (1.0 - ratio.x) * 0.5,
-            vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
-          );
-          vec4 color = texture2D(tMap, uv);
+      void main() {
+        vec2 ratio = vec2(
+          min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),
+          min((uPlaneSizes.y / uPlaneSizes.x) / (uImageSizes.y / uImageSizes.x), 1.0)
+        );
 
-          float d = roundedBoxSDF(vUv - 0.5, vec2(0.5 - uBorderRadius), uBorderRadius);
-          if(d > 0.0) {
-            discard;
-          }
+        vec2 uv = vec2(
+          vUv.x * ratio.x + (1.0 - ratio.x) * 0.5,
+          vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
+        );
 
-          gl_FragColor = vec4(color.rgb, 1.0);
-        }
-      `,
+        vec4 color = texture2D(tMap, uv);
+
+        float d = roundedBoxSDF(vUv - 0.5, vec2(0.5 - uBorderRadius), uBorderRadius);
+        if (d > 0.0) discard;
+
+        gl_FragColor = vec4(color.rgb, 1.0);
+      }
+    `,
       uniforms: {
         tMap: { value: texture },
         uPlaneSizes: { value: [0, 0] },
         uImageSizes: { value: [0, 0] },
-        uSpeed: { value: 0 },
-        uTime: { value: 100 * Math.random() },
         uBorderRadius: { value: this.borderRadius },
       },
       transparent: true,
@@ -330,51 +356,50 @@ class Media {
     });
   }
 
-  update(scroll: { current: number; last: number }, direction: "right" | "left") {
-    this.plane.position.x = this.x - scroll.current - this.extra;
+  update(
+    scroll: { current: number; last: number },
+    direction: "right" | "left"
+  ) {
+    // Linear world param (keeps scroll behavior unchanged)
+    const raw = this.x - scroll.current - this.extra;
 
-    const x = this.plane.position.x;
-    const H = this.viewport.width / 2;
+    // Angular param on the circle
+    const theta = raw / this.R;
+    const c = Math.max(Math.cos(theta), 0.2);
 
-    // Position along arc
-    if (this.bend === 0) {
-      this.plane.position.y = 0;
-      this.plane.rotation.z = 0;
-    } else {
-      const B_abs = Math.abs(this.bend);
-      const R = (H * H + B_abs * B_abs) / (2 * B_abs);
-      const effectiveX = Math.min(Math.abs(x), H);
-      const arc = R - Math.sqrt(R * R - effectiveX * effectiveX);
-      if (this.bend > 0) {
-        this.plane.position.y = -arc;
-        this.plane.rotation.z = -Math.sign(x) * Math.asin(effectiveX / R);
-      } else {
-        this.plane.position.y = arc;
-        this.plane.rotation.z = Math.sign(x) * Math.asin(effectiveX / R);
-      }
-    }
+    // Equalize perceived spacing: expand edges, compress center
+    const eq = Math.pow(c, this.gapEqualize); // 1 near center, smaller near edges
+    const px = (Math.sin(theta) / eq) * this.R;
 
-    // Scale rule: smaller in the center, larger near edges
-    // d=0 at center, d=1 near edges
-    const d = Math.min(Math.abs(x), H) / H;
-    const scaleMult = 0.85 + d * (1.2 - 0.85); // 0.85 center -> 1.2 edges
+    // Depth and vertical curvature from the arc
+    const arc = this.R * (1.0 - Math.cos(theta));
+    this.plane.position.x = px;
+    this.plane.position.z = -arc * this.depthStrength * this.bendSign;
+    this.plane.position.y =
+      (-arc / this.R) * (this.baseScaleY * this.curveYStrength) * this.bendSign;
+
+    // Strong inward skew
+    this.plane.rotation.z = 0;
+    this.plane.rotation.y =
+      -Math.sign(raw) * Math.abs(theta) * this.skewStrength;
+
+    // Scale: softer edge growth to avoid tight outside
+    const dA = Math.min(Math.abs(theta) / this.thetaMax, 1.0); // 0 center -> 1 edges
+    const scaleMult = 0.9 + dA * (1.18 - 0.9);
     this.plane.scale.x = this.baseScaleX * scaleMult;
     this.plane.scale.y = this.baseScaleY * scaleMult;
 
-    // Keep shader sizing in sync with dynamic scale
-    this.program.uniforms.uPlaneSizes.value = [this.plane.scale.x, this.plane.scale.y];
+    // Sync shader sizing
+    this.program.uniforms.uPlaneSizes.value = [
+      this.plane.scale.x,
+      this.plane.scale.y,
+    ];
 
-    // Time/speed uniforms for subtle motion
-    this.speed = scroll.current - scroll.last;
-    this.program.uniforms.uTime.value += 0.04;
-    this.program.uniforms.uSpeed.value = this.speed;
-
-    // Infinite wrap
-    const planeOffset = this.plane.scale.x / 2;
+    // Wrap using linear world X to keep periodicity stable
+    const planeOffset = this.baseScaleX / 2;
     const viewportOffset = this.viewport.width / 2;
-
-    this.isBefore = this.plane.position.x + planeOffset < -viewportOffset;
-    this.isAfter = this.plane.position.x - planeOffset > viewportOffset;
+    this.isBefore = raw + planeOffset < -viewportOffset;
+    this.isAfter = raw - planeOffset > viewportOffset;
 
     if (direction === "right" && this.isBefore) {
       this.extra -= this.widthTotal;
@@ -386,35 +411,36 @@ class Media {
     }
   }
 
-  onResize({ screen, viewport }: { screen?: ScreenSize; viewport?: Viewport } = {}) {
+  onResize({
+    screen,
+    viewport,
+  }: { screen?: ScreenSize; viewport?: Viewport } = {}) {
     if (screen) this.screen = screen;
-    if (viewport) {
-      this.viewport = viewport;
-      if (this.plane.program.uniforms.uViewportSizes) {
-        this.plane.program.uniforms.uViewportSizes.value = [
-          this.viewport.width,
-          this.viewport.height,
-        ];
-      }
-    }
+    if (viewport) this.viewport = viewport;
 
-    // Base sizing of each media card
+    // Base sizes
     this.scale = this.screen.height / 1500;
-
-    // Make cards slightly shorter to match reference proportions
-    const baseY = (this.viewport.height * (820 * this.scale)) / this.screen.height;
-    const baseX = (this.viewport.width * (650 * this.scale)) / this.screen.width;
-
+    const baseY =
+      (this.viewport.height * (820 * this.scale)) / this.screen.height;
+    const baseX =
+      (this.viewport.width * (650 * this.scale)) / this.screen.width;
     this.plane.scale.y = baseY;
     this.plane.scale.x = baseX;
-
-    // store base scale for dynamic scaling in update()
     this.baseScaleX = baseX;
     this.baseScaleY = baseY;
+    this.program.uniforms.uPlaneSizes.value = [
+      this.plane.scale.x,
+      this.plane.scale.y,
+    ];
 
-    this.plane.program.uniforms.uPlaneSizes.value = [this.plane.scale.x, this.plane.scale.y];
+    // Curvature radius from sagitta (bend) and half-chord H
+    const H = this.viewport.width / 2;
+    this.bendSign = Math.sign(this.bend || 1);
+    const Babs = Math.max(Math.abs(this.bend), 0.0001);
+    this.R = (H * H + Babs * Babs) / (2 * Babs);
+    this.thetaMax = Math.asin(Math.min(H / this.R, 1));
 
-    // Spacing between cards
+    // Equidistant in world space (keeps scroll feel), dynamic view equalized by px formula
     this.padding = 2.2;
     this.width = this.plane.scale.x + this.padding;
     this.widthTotal = this.width * this.length;
@@ -430,6 +456,10 @@ interface AppConfig {
   font?: string;
   scrollSpeed?: number;
   scrollEase?: number;
+  skewStrength?: number;
+  depthStrength?: number;
+  curveYStrength?: number;
+  gapEqualize?: number;
 }
 
 class App {
@@ -448,7 +478,6 @@ class App {
   gl!: GL;
   camera!: Camera;
   scene!: Transform;
-
   planeGeometry!: Plane;
 
   medias: Media[] = [];
@@ -457,7 +486,7 @@ class App {
   screen!: { width: number; height: number };
   viewport!: { width: number; height: number };
 
-  raf: number = 0;
+  raf = 0;
 
   boundOnResize!: () => void;
   boundOnWheel!: (e: Event) => void;
@@ -465,32 +494,44 @@ class App {
   boundOnTouchMove!: (e: MouseEvent | TouchEvent) => void;
   boundOnTouchUp!: () => void;
 
-  isDown: boolean = false;
-  start: number = 0;
+  isDown = false;
+  start = 0;
+
+  skewStrength?: number;
+  depthStrength?: number;
+  curveYStrength?: number;
+  gapEqualize?: number;
 
   constructor(
     container: HTMLElement,
     {
       items,
-      bend = 1,
-      textColor = "#ffffff",
-      borderRadius = 0,
+      bend = 6,
+      textColor = "#111111",
+      borderRadius = 0.08,
       font = "bold 30px Figtree",
       scrollSpeed = 2,
-      scrollEase = 0.05,
+      scrollEase = 0.06,
+      skewStrength = 3.0,
+      depthStrength = 2.0,
+      curveYStrength = 1.25,
+      gapEqualize = 0.65,
     }: AppConfig
   ) {
     document.documentElement.classList.remove("no-js");
-
     this.container = container;
     this.scrollSpeed = scrollSpeed;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck.bind(this), 200);
 
+    this.skewStrength = skewStrength;
+    this.depthStrength = depthStrength;
+    this.curveYStrength = curveYStrength;
+    this.gapEqualize = gapEqualize;
+
     this.createRenderer();
     this.createCamera();
     this.createScene();
-
     this.onResize();
     this.createGeometry();
     this.createMedias(items, bend, textColor, borderRadius, font);
@@ -524,7 +565,7 @@ class App {
 
   createMedias(
     items: { image: string; text: string }[] | undefined,
-    bend: number = 1,
+    bend = 1,
     textColor: string,
     borderRadius: number,
     font: string
@@ -544,7 +585,22 @@ class App {
       { image: `/hero-image.jpg`, text: "" },
     ];
 
-    const galleryItems = items && items.length ? items : defaultItems;
+    const getNumberOfImages = () => {
+      const width = window.innerWidth;
+
+      if (width < 768) { // Small devices (sm)
+        return 3;
+      } else if (width >= 768 && width < 1024) { // Medium devices (md)
+        return 6;
+      } else if (width >= 1024 && width < 1280) { // Large devices (lg)
+        return 9;
+      } else { // Extra large devices (xl)
+        return 12;
+      }
+    };
+
+    const numberOfImages = getNumberOfImages();
+    const galleryItems = items && items.length ? items.slice(0, numberOfImages) : defaultItems.slice(0, numberOfImages);
     this.mediasImages = galleryItems.concat(galleryItems);
 
     this.medias = this.mediasImages.map((data, index) => {
@@ -563,6 +619,10 @@ class App {
         textColor,
         borderRadius,
         font,
+        skewStrength: this.skewStrength,
+        depthStrength: this.depthStrength,
+        curveYStrength: this.curveYStrength,
+        gapEqualize: this.gapEqualize,
       });
     });
   }
@@ -588,7 +648,9 @@ class App {
   onWheel(e: Event) {
     const wheelEvent = e as WheelEvent;
     const delta =
-      wheelEvent.deltaY || (wheelEvent as any).wheelDelta || (wheelEvent as any).detail;
+      wheelEvent.deltaY ||
+      (wheelEvent as any).wheelDelta ||
+      (wheelEvent as any).detail;
     this.scroll.target += delta > 0 ? this.scrollSpeed : -this.scrollSpeed;
     this.onCheckDebounce();
   }
@@ -615,6 +677,7 @@ class App {
     const fov = (this.camera.fov * Math.PI) / 180;
     const height = 2 * Math.tan(fov / 2) * this.camera.position.z;
     const width = height * this.camera.aspect;
+
     this.viewport = { width, height };
 
     if (this.medias) {
@@ -625,7 +688,11 @@ class App {
   }
 
   update() {
-    this.scroll.current = lerp(this.scroll.current, this.scroll.target, this.scroll.ease);
+    this.scroll.current = lerp(
+      this.scroll.current,
+      this.scroll.target,
+      this.scroll.ease
+    );
     const direction = this.scroll.current > this.scroll.last ? "right" : "left";
 
     if (this.medias) {
@@ -633,7 +700,6 @@ class App {
     }
 
     this.renderer.render({ scene: this.scene, camera: this.camera });
-
     this.scroll.last = this.scroll.current;
     this.raf = window.requestAnimationFrame(this.update.bind(this));
   }
@@ -646,29 +712,38 @@ class App {
     this.boundOnTouchUp = this.onTouchUp.bind(this);
 
     window.addEventListener("resize", this.boundOnResize);
-    window.addEventListener("mousewheel", this.boundOnWheel);
-    window.addEventListener("wheel", this.boundOnWheel);
-    window.addEventListener("mousedown", this.boundOnTouchDown);
-    window.addEventListener("mousemove", this.boundOnTouchMove);
-    window.addEventListener("mouseup", this.boundOnTouchUp);
-    window.addEventListener("touchstart", this.boundOnTouchDown);
-    window.addEventListener("touchmove", this.boundOnTouchMove);
-    window.addEventListener("touchend", this.boundOnTouchUp);
+    window.addEventListener("mousewheel", this.boundOnWheel as any);
+    window.addEventListener("wheel", this.boundOnWheel as any);
+
+    window.addEventListener("mousedown", this.boundOnTouchDown as any);
+    window.addEventListener("mousemove", this.boundOnTouchMove as any);
+    window.addEventListener("mouseup", this.boundOnTouchUp as any);
+
+    window.addEventListener("touchstart", this.boundOnTouchDown as any);
+    window.addEventListener("touchmove", this.boundOnTouchMove as any);
+    window.addEventListener("touchend", this.boundOnTouchUp as any);
   }
 
   destroy() {
     window.cancelAnimationFrame(this.raf);
-    window.removeEventListener("resize", this.boundOnResize);
-    window.removeEventListener("mousewheel", this.boundOnWheel);
-    window.removeEventListener("wheel", this.boundOnWheel);
-    window.removeEventListener("mousedown", this.boundOnTouchDown);
-    window.removeEventListener("mousemove", this.boundOnTouchMove);
-    window.removeEventListener("mouseup", this.boundOnTouchUp);
-    window.removeEventListener("touchstart", this.boundOnTouchDown);
-    window.removeEventListener("touchmove", this.boundOnTouchMove);
-    window.removeEventListener("touchend", this.boundOnTouchUp);
 
-    if (this.renderer && this.renderer.gl && (this.renderer.gl.canvas as any).parentNode) {
+    window.removeEventListener("resize", this.boundOnResize);
+    window.removeEventListener("mousewheel", this.boundOnWheel as any);
+    window.removeEventListener("wheel", this.boundOnWheel as any);
+
+    window.removeEventListener("mousedown", this.boundOnTouchDown as any);
+    window.removeEventListener("mousemove", this.boundOnTouchMove as any);
+    window.removeEventListener("mouseup", this.boundOnTouchUp as any);
+
+    window.removeEventListener("touchstart", this.boundOnTouchDown as any);
+    window.removeEventListener("touchmove", this.boundOnTouchMove as any);
+    window.removeEventListener("touchend", this.boundOnTouchUp as any);
+
+    if (
+      this.renderer &&
+      this.renderer.gl &&
+      (this.renderer.gl.canvas as any).parentNode
+    ) {
       (this.renderer.gl.canvas as any).parentNode.removeChild(
         this.renderer.gl.canvas as HTMLCanvasElement
       );
@@ -676,7 +751,7 @@ class App {
   }
 }
 
-interface CircularGalleryProps {
+export interface CircularGalleryProps {
   items?: { image: string; text: string }[];
   bend?: number;
   textColor?: string;
@@ -684,22 +759,29 @@ interface CircularGalleryProps {
   font?: string;
   scrollSpeed?: number;
   scrollEase?: number;
+  skewStrength?: number;
+  depthStrength?: number;
+  curveYStrength?: number;
+  gapEqualize?: number;
 }
 
 export default function CircularGallery({
   items,
-  bend = 3.5,
-  textColor = "#ffffff",
+  bend = 6,
+  textColor = "#111111",
   borderRadius = 0.08,
   font = "bold 30px Figtree",
   scrollSpeed = 2,
   scrollEase = 0.06,
+  skewStrength = 3.0,
+  depthStrength = 2.0,
+  curveYStrength = 1.25,
+  gapEqualize = 0.65,
 }: CircularGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
-
     const app = new App(containerRef.current, {
       items,
       bend,
@@ -708,12 +790,27 @@ export default function CircularGallery({
       font,
       scrollSpeed,
       scrollEase,
+      skewStrength,
+      depthStrength,
+      curveYStrength,
+      gapEqualize,
     });
-
     return () => {
       app.destroy();
     };
-  }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase]);
+  }, [
+    items,
+    bend,
+    textColor,
+    borderRadius,
+    font,
+    scrollSpeed,
+    scrollEase,
+    skewStrength,
+    depthStrength,
+    curveYStrength,
+    gapEqualize,
+  ]);
 
   return (
     <div
