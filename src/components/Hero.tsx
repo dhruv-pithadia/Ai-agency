@@ -34,13 +34,28 @@ export default function Hero() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [isMobile])
 
+
+      const getscrollSpeed = () => {
+      const width = window.innerWidth;
+
+      if (width < 768) { // Small devices (sm)
+        return 2.5;
+      } else if (width >= 768 && width < 1024) { // Medium devices (md)
+        return 2;
+      } else if (width >= 1024 && width < 1280) { // Large devices (lg)
+        return 1.5;
+      } else { // Extra large devices (xl)
+        return 1;
+      }
+    };
+
   return (
     <section id="hero" className="relative min-h-screen overflow-hidden" aria-label="Hero section">
       <div style={{ width: "100%", height: "1000px", position: "absolute" }}>
-        <Galaxy mouseRepulsion mouseInteraction density={0.8} glowIntensity={0.4} />
+        <Galaxy mouseRepulsion mouseInteraction density={0.3} glowIntensity={0.4} />
       </div>
 
-      <div className="pt-20 sm:pt-24 md:pt-28 bg-transparent">
+      <div className="pt-32 sm:pt-28 md:pt-32 bg-transparent">
         <div className="px-4 sm:px-6">
           <div className="mx-auto max-w-4xl text-center">
             {/* Headline */}
@@ -115,7 +130,7 @@ export default function Hero() {
               borderRadius={0.08}
               textColor="#111111"
               font="bold 30px Figtree"
-              scrollSpeed={0.2}
+              scrollSpeed={getscrollSpeed()}
               scrollEase={0.06}
             />
           </div>

@@ -202,7 +202,7 @@ const Navbar = () => {
           )}
         >
           {/* Mobile Menu Content */}
-          <nav className="flex flex-col mt-10 p-4 sm:p-6 space-y-2">
+          <nav className="flex flex-col mt-20 p-4 sm:p-6 space-y-2">
             <a
               href="#"
               className="text-base sm:text-lg font-medium py-3 sm:py-4 px-4 sm:px-6 rounded-xl hover:bg-muted/50 transition-colors duration-300 text-center"
