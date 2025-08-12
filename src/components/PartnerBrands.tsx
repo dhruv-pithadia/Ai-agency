@@ -20,7 +20,7 @@ import { animate } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import FloatingIcon from "./icon-background";
 import BackgroundBlobs from "./BackgroundBlobs";
-import zap from "/3zap.svg";
+import lines from "/3lines.svg";
 
 // Type definitions
 interface Statistic {
@@ -453,7 +453,7 @@ const PartnerBrands = () => {
         </motion.div>
 
         {/* Main content grid - Responsive */}
-        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 md:gap-16 lg:gap-20 xl:gap-24 items-center min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 md:gap-16 lg:gap-20 xl:gap-12 items-center min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
           {/* Left Side - Header and Statistics */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -473,7 +473,7 @@ const PartnerBrands = () => {
                   <span className="relative">
                     s
                     <FloatingIcon
-                      icon={zap}
+                      icon={lines}
                       colorClassName="text-blue-400"
                       containerClassName="
                         absolute -top-6 left-1/2 -translate-x-1/3 w-12 h-12

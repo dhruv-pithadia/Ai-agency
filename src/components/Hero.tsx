@@ -52,15 +52,15 @@ export default function Hero() {
   return (
     <section id="hero" className="relative min-h-screen overflow-hidden" aria-label="Hero section">
       <div style={{ width: "100%", height: "1000px", position: "absolute" }}>
-        <Galaxy mouseRepulsion mouseInteraction density={0.3} glowIntensity={0.4} />
+      <Galaxy mouseRepulsion mouseInteraction density={1} glowIntensity={0.2} repulsionStrength={0.5}/>
       </div>
 
       <div className="pt-32 sm:pt-28 md:pt-32 bg-transparent">
         <div className="px-4 sm:px-6">
-          <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto max-w-4xl mt-5 text-center">
             {/* Headline */}
             <div
-              className="font-bold leading-tight opacity-0 animate-fade-in font-montserrat text-xl sm:text-2xl md:text-2xl lg:text-3xl tracking-tight"
+              className="font-bold leading-tight opacity-0 animate-fade-in font-montserrat text-xl sm:text-2xl md:text-2xl lg:text-4xl tracking-tight"
               style={{ animationDelay: "0.3s" }}
             >
               {"A Goldmine for "}
@@ -69,8 +69,8 @@ export default function Hero() {
               <span className="relative inline-block">
                 {"d"}
                 <FloatingIcon
-                  icon="/3lines.svg"
-                  containerClassName="absolute -top-6 left-1/2 -translate-x-1/3 w-8 h-8 sm:-top-6 sm:w-10 sm:h-10 md:-top-8 md:w-12 md:h-12 lg:-top-8 lg:w-12 lg:h-12 xl:-top-12 xl:w-16 xl:h-16"
+                  icon="/3zap.svg"
+                  containerClassName="absolute -top-6 left-1/2 -translate-x-1/3 w-8 h-8 sm:-top-6 sm:w-10 sm:h-10 md:-top-8 md:w-12 md:h-12 lg:-top-8 lg:w-12 lg:h-12 xl:-top-10 xl:w-14 xl:h-16"
                   opacity={1}
                   zIndex={10}
                   enableRotation
@@ -85,7 +85,7 @@ export default function Hero() {
             {/* Subheader */}
             <div className="relative">
               <div
-                className="font-semibold text-primary leading-tight opacity-0 animate-fade-in font-nunito text-sm sm:text-lg md:text-xl mt-3"
+                className="font-semibold text-primary leading-tight opacity-0 animate-fade-in font-nunito text-sm sm:text-lg md:text-3xl mt-3"
                 style={{ animationDelay: "0.4s" }}
               >
                 {"AI built for Brands, Backed by AI Creators."}
@@ -95,7 +95,7 @@ export default function Hero() {
             {/* Supporting copy */}
             <p
               style={{ animationDelay: "0.5s" }}
-              className="section-subtitle leading-relaxed opacity-0 animate-fade-in text-muted-foreground font-normal font-nunito text-sm sm:text-base md:text-lg max-w-4xl mx-auto mt-3"
+              className="section-subtitle leading-relaxed opacity-0 animate-fade-in text-muted-foreground font-normal font-nunito text-xs sm:text-sm md:text-sm max-w-2xl mx-auto mt-1"
             >
               {
                 "Creator Space is a 360° marketing agency that helps AI tools grow through influencer campaigns, community buzz, search visibility, and event amplification, all built by and for the AI community."
@@ -137,7 +137,7 @@ export default function Hero() {
         </div>
 
         {/* Decorative icons */}
-        <FloatingIcon
+        {/* <FloatingIcon
           icon={<ShootingStar weight="thin" />}
           colorClassName="text-foreground"
           containerClassName="absolute top-20 left-4 w-3 h-3 sm:top-24 sm:left-8 sm:w-4 sm:h-4"
@@ -172,7 +172,7 @@ export default function Hero() {
           zIndex={15}
           enableRotation
           rotationRange={8}
-        />
+        /> */}
       </div>
     </section>
   )

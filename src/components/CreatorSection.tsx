@@ -246,7 +246,7 @@ const CreatorSection = () => {
           {/* Responsive CTA Section - Button above message */}
           <motion.div
             className="flex flex-col justify-center items-center
-              mt-6 sm:mt-8 md:mt-10 lg:mt-12 gap-4 sm:gap-6"
+              mt-6 sm:mt-8 md:mt-10 lg:mt-12 gap-2 sm:gap-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.6 }}
