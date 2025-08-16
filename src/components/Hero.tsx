@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Sparkle, Lightning, ShootingStar, CassetteTape } from "@phosphor-icons/react"
-import CircularGallery from "@/components/ui/circular-gallery"
+import VideoCircularGallery from "@/components/ui/video-gallery"
+import MobileVideoCarousel from "@/components/ui/mobile-gallery"
 import GlowingButton from "@/components/animated-button"
 import FloatingIcon from "@/components/icon-background"
 import Galaxy from "./Galaxy-bg"
@@ -34,28 +34,32 @@ export default function Hero() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [isMobile])
 
+  const getScrollSpeed = () => {
+    const width = window.innerWidth
+    if (width < 768) return 2.5
+    else if (width >= 768 && width < 1024) return 2
+    else if (width >= 1024 && width < 1280) return 1.5
+    else return 1
+  }
 
-      const getscrollSpeed = () => {
-      const width = window.innerWidth;
+  const videoData = [
+    { video: `/Comment “Gaga” for the link.mp4?height=720&width=1280&query=brand showcase video`, text: "Brand Showcase" },
+    { video: `/placeholder.mp4?height=720&width=1280&query=creative process video`, text: "Creative Process" },
+    { video: `/placeholder.mp4?height=720&width=1280&query=ai technology demo`, text: "AI Technology" },
+    { video: `/placeholder.mp4?height=720&width=1280&query=marketing campaign video`, text: "Marketing Campaign" },
+    { video: `/placeholder.mp4?height=720&width=1280&query=product showcase video`, text: "Product Showcase" },
+    { video: `/placeholder.mp4?height=720&width=1280&query=team collaboration video`, text: "Team Collaboration" },
+  ]
 
-      if (width < 768) { // Small devices (sm)
-        return 2.5;
-      } else if (width >= 768 && width < 1024) { // Medium devices (md)
-        return 2;
-      } else if (width >= 1024 && width < 1280) { // Large devices (lg)
-        return 1.5;
-      } else { // Extra large devices (xl)
-        return 1;
-      }
-    };
+  const mobileVideoUrls: string[] = videoData.slice(0, 3).map((item) => item.video)
 
   return (
     <section id="hero" className="relative min-h-screen overflow-hidden" aria-label="Hero section">
       <div style={{ width: "100%", height: "1000px", position: "absolute" }}>
-      <Galaxy mouseRepulsion mouseInteraction density={1} glowIntensity={0.2} repulsionStrength={0.5}/>
+        <Galaxy mouseRepulsion mouseInteraction density={1} glowIntensity={0.2} repulsionStrength={0.5} />
       </div>
 
-      <div className="pt-32 sm:pt-28 md:pt-32 bg-transparent">
+      <div className="pt-24 sm:pt-20 md:pt-24 bg-transparent">
         <div className="px-4 sm:px-6">
           <div className="mx-auto max-w-4xl mt-5 text-center">
             {/* Headline */}
@@ -113,66 +117,36 @@ export default function Hero() {
         </div>
 
         {/* Bottom curved gallery */}
-        <div className="relative mx-auto -mt-1 w-full px-2 sm:px-4">
+        <div className="relative mx-auto -mt-14 w-full px-2 sm:px-4">
           {/* Optional parallax glow */}
           <div
             className="pointer-events-none hidden lg:block absolute -bottom-10 left-1/4 w-64 h-64 xl:w-80 xl:h-80 bg-primary/10 rounded-full blur-3xl -z-10 parallax"
             data-speed="0.05"
             aria-hidden="true"
           />
-          <div className="relative w-full h-[52vh] sm:h-[46vh] md:h-[48vh] lg:h-[50vh]">
-            <CircularGallery
-              bend={-5}
-              skewStrength={3.0}
-              depthStrength={2.0}
-              curveYStrength={1.25}
-              gapEqualize={1}
-              borderRadius={0.08}
-              textColor="#111111"
-              font="bold 30px Figtree"
-              scrollSpeed={getscrollSpeed()}
-              scrollEase={0.06}
-            />
-          </div>
-        </div>
 
-        {/* Decorative icons */}
-        {/* <FloatingIcon
-          icon={<ShootingStar weight="thin" />}
-          colorClassName="text-foreground"
-          containerClassName="absolute top-20 left-4 w-3 h-3 sm:top-24 sm:left-8 sm:w-4 sm:h-4"
-          opacity={0.7}
-          zIndex={1}
-          enableRotation
-          rotationRange={10}
-        />
-        <FloatingIcon
-          icon={<Sparkle weight="light" />}
-          colorClassName="text-pink-500"
-          containerClassName="absolute bottom-[52vh] right-4 w-5 h-5 sm:right-8 sm:w-6 sm:h-6"
-          opacity={0.6}
-          zIndex={1}
-          enableRotation
-          rotationRange={12}
-        />
-        <FloatingIcon
-          icon={<CassetteTape weight="thin" />}
-          colorClassName="text-pink-500"
-          containerClassName="absolute hidden sm:block bottom-[50vh] left-8 w-10 h-10 md:w-12 md:h-12"
-          opacity={0.6}
-          zIndex={1}
-          enableRotation
-          rotationRange={10}
-        />
-        <FloatingIcon
-          icon={<Lightning weight="fill" />}
-          colorClassName="text-orange-400"
-          containerClassName="absolute top-[38vh] right-6 w-5 h-5 md:w-6 md:h-6"
-          opacity={0.6}
-          zIndex={15}
-          enableRotation
-          rotationRange={8}
-        /> */}
+          {isMobile ? (
+            <div className="relative w-full pt-20 px-4 py-8">
+              <MobileVideoCarousel videos={mobileVideoUrls} autoplayDelay={4000} className="max-w-sm mx-auto" />
+            </div>
+          ) : (
+            <div className="relative w-full h-[62vh] sm:h-[56vh] md:h-[58vh] lg:h-[60vh]">
+              <VideoCircularGallery
+                items={videoData}
+                bend={-5}
+                skewStrength={3.0}
+                depthStrength={2.0}
+                curveYStrength={1.25}
+                gapEqualize={1}
+                borderRadius={0.08}
+                textColor="#ffffffff"
+                font="bold 30px Figtree"
+                scrollSpeed={getScrollSpeed()}
+                scrollEase={0.06}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )
