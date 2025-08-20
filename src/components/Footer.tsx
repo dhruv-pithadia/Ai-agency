@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Twitter, Linkedin, Mail, Heart } from "lucide-react"
+import { Linkedin, Heart, Instagram } from "lucide-react"
 import Lottie from "lottie-react"
 import thankyouAnimation from "../hooks/Thankyou.json"
 import BackgroundBlobs from "./BackgroundBlobs"
@@ -23,9 +23,8 @@ const Footer = () => {
     {
       title: "SOCIAL MEDIA",
       links: [
-        { name: "Instagram", href: "#", icon: Mail }, // Using Mail for Instagram as an example
-        { name: "Twitter", href: "#", icon: Twitter },
-        { name: "LinkedIn", href: "#", icon: Linkedin },
+        { name: "Instagram", href: "https://www.instagram.com/aispaces.in/ ", icon: Instagram },
+        { name: "LinkedIn", href: "https://www.linkedin.com/company/aispaces.in/", icon: Linkedin },
       ],
     },
   ]
