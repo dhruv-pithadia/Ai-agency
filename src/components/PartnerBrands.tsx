@@ -62,18 +62,10 @@ interface BlobAnimationProps {
 }
 
 const clients = [
-  { name: "TechCorp Solutions", icon: Building2, color: "text-blue-500" },
-  { name: "Innovation Labs", icon: Zap, color: "text-purple-500" },
-  { name: "Digital Dynamics", icon: Sparkles, color: "text-green-500" },
-  { name: "Future Systems", icon: Star, color: "text-orange-500" },
-  { name: "Smart Enterprises", icon: Building2, color: "text-pink-500" },
-  { name: "Quantum Technologies", icon: Zap, color: "text-cyan-500" },
-  { name: "NextGen Solutions", icon: Sparkles, color: "text-indigo-500" },
-  { name: "Advanced Analytics", icon: Star, color: "text-red-500" },
-  { name: "AI Innovations", icon: Building2, color: "text-teal-500" },
-  { name: "Data Driven Co", icon: Zap, color: "text-yellow-500" },
-  { name: "Cloud Native", icon: Sparkles, color: "text-violet-500" },
-  { name: "Cyber Security Pro", icon: Star, color: "text-emerald-500" },
+  { name: "Serri", icon: Building2, color: "text-blue-500" },
+  { name: "BeHooked", icon: Zap, color: "text-purple-500" },
+  { name: "babblebots", icon: Sparkles, color: "text-green-500" },
+  { name: "MaaDiy", icon: Star, color: "text-orange-500" },
 ];
 
 // AnimatedCounter component with intersection observer
