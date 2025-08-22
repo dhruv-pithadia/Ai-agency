@@ -454,7 +454,7 @@ const PartnerBrands = () => {
             className="space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 flex flex-col justify-center order-1"
           >
             <div className="space-y-4 sm:space-y-6 md:space-y-8">
-              <motion.p
+              <motion.div
                 className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl 2xl:text-3xl font-light font-montserrat leading-tight text-center lg:text-left"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -486,7 +486,7 @@ const PartnerBrands = () => {
                 <span className="text-primary font-light">
                   talked about everywhere.
                 </span>
-              </motion.p>
+              </motion.div>
             </div>
             {/* Statistics Grid */}
             <StatisticsGrid statistics={statistics} />
@@ -643,7 +643,7 @@ const PartnerBrands = () => {
           opacity={1}
           zIndex={1}
           enableRotation={true}
-          rotationRange={20}
+          rotationRange={2}
         />
 
         <FloatingIcon
@@ -659,7 +659,7 @@ const PartnerBrands = () => {
           opacity={0.6}
           zIndex={1}
           enableRotation={true}
-          rotationRange={25}
+          rotationRange={3}
         />
       </div>
     </section>

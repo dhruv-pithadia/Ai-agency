@@ -43,12 +43,12 @@ export default function Hero() {
     }
 
     const videoData = [
-        { video: `/Comment “Gaga” for the link.mp4?height=720&width=1280&query=brand showcase video`, text: "Gaga Showcase" },
-        { video: `/get.mp4?height=720&width=1280&query=creative process video`, text: "Creative Get Process" },
-        { video: `/🤯INSANE effects in ONE CLICK✅🔥Tired of complicated video editing 😩 This AI tool changes every.mp4?height=720&width=1280&query=ai technology demo`, text: "Video Editing" },
-        { video: `/Master Programming Free🤯 Comment “Skill” for the Link🔗You can Learn any programming language i.mp4?height=720&width=1280&query=marketing campaign video`, text: "Master Programming" },
-        { video: `/✅ Save & Share Karlo Future Ke Liye & Comment Karlo Agar Koi AI Related Question Ho Toh 🤖Follow.mp4?height=720&width=1280&query=product showcase video`, text: "Future AI" },
-        { video: `/Scraping was just made 100x easier 🦾Chat4Data is a chrome extension that can do scraping like a.mp4?height=720&width=1280&query=team collaboration video`, text: "Easy Scraping" },
+        { video: `/1.mp4?height=720&width=1280&query=brand showcase video`, text: "Gaga Showcase" },
+        { video: `/2.mp4?height=720&width=1280&query=creative process video`, text: "Creative Get Process" },
+        { video: `/3.mp4?height=720&width=1280&query=ai technology demo`, text: "Video Editing" },
+        { video: `4.mp4?height=720&width=1280&query=marketing campaign video`, text: "Master Programming" },
+        { video: `/5.mp4?height=720&width=1280&query=product showcase video`, text: "Future AI" },
+        { video: `/6.mp4?height=720&width=1280&query=team collaboration video`, text: "Easy Scraping" },
     ]
 
     const mobileVideoUrls: string[] = videoData.slice(0, 3).map((item) => item.video)

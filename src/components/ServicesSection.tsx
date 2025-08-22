@@ -6,7 +6,6 @@ import { Star, Sparkle, Lightbulb } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
 import BackgroundBlobs from "./BackgroundBlobs";
 import FloatingIcon from "./icon-background";
-import swerl from "/3swerl.svg";
 
 const ServicesSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -340,24 +339,7 @@ const ServicesSection = () => {
             </motion.div>
             <div className="text-lg sm:text-xl font-montserrat md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold mb-2 sm:mb-3 md:mb-4 lg:mb-6 leading-tight">
               <span className="text-primary relative">
-                Our Service
-                <span className="relative">
-                  s
-                  <FloatingIcon
-                    icon={swerl}
-                    colorClassName="text-blue-400"
-                    containerClassName="
-                        absolute -top-6 right-2 -translate-x-1/3 w-10 h-10
-                        sm:-top-4 -left-2 sm:w-12 sm:h-12
-                        md:-top-9 -left-2 md:left-1 md:w-12 md:h-12
-                        lg:-top-4 -left-2 lg:w-4 lg:h-4
-                        xl:-top-14 -left-2 xl:w-20 xl:h-20"
-                    opacity={1}
-                    zIndex={10}
-                    enableRotation={true}
-                    rotationRange={4}
-                  />
-                </span>{" "}
+                Our Services
               </span>
             </div>
             <p className="text-base sm:text-base md:text-lg font-nunito lg:text-xl text-muted-foreground leading-relaxed">
