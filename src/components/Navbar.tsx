@@ -109,6 +109,7 @@ const Navbar = () => {
                   src="/Creator-space.png"
                   alt="Sparkle Icon"
                   className="w-full h-full object-contain mx-auto drop-shadow-lg"
+                  loading="lazy"
                 />{" "}
               </div>
             </div>

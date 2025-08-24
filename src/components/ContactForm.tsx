@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useState, useEffect, useRef } from "react";
-import { Send, Mail, Phone, BookAIcon, Sparkles } from "lucide-react";
-import { Heart, Star, Circle } from "@phosphor-icons/react";
-import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
-import FloatingIcon from "./icon-background";
-import BackgroundBlobs from "./BackgroundBlobs";
-import bolt from "/bolt.svg";
+import type React from "react"
+import { useState, useRef } from "react"
+import { Send, Mail, Phone, BookAIcon, Sparkles } from "lucide-react"
+import { Heart, Star, Circle } from "@phosphor-icons/react"
+import { motion } from "framer-motion"
+import { useToast } from "@/hooks/use-toast"
+import FloatingIcon from "./icon-background"
+import BackgroundBlobs from "./BackgroundBlobs"
+import bolt from "/bolt.svg"
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -16,51 +16,24 @@ const ContactForm = () => {
     email: "",
     company: "",
     message: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const { toast } = useToast()
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const elements = entry.target.querySelectorAll(".fade-in-element");
-            elements.forEach((el, index) => {
-              setTimeout(() => {
-                el.classList.add("animate-fade-in");
-              }, index * 150);
-            });
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
+  // Elements will now appear immediately when the section is in view
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    e.preventDefault()
+    setIsSubmitting(true)
     try {
       const response = await fetch("/api/send-email", {
         method: "POST",
@@ -68,31 +41,30 @@ const ContactForm = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      });
+      })
       if (!response.ok) {
-        throw new Error("Something went wrong. Please try again later.");
+        throw new Error("Something went wrong. Please try again later.")
       }
       toast({
         title: "Message sent successfully!",
         description: "We'll get back to you within 24 hours.",
-      });
+      })
       setFormData({
         name: "",
         email: "",
         company: "",
         message: "",
-      });
+      })
     } catch (error: any) {
       toast({
         title: "Oh no! An error occurred.",
-        description:
-          error.message || "Could not send your message. Please try again.",
+        description: error.message || "Could not send your message. Please try again.",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <section
@@ -114,7 +86,7 @@ const ContactForm = () => {
               mb-4 sm:mb-5 md:mb-6 lg:mb-8"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
+            transition={{ delay: 0, duration: 0.3 }}
             viewport={{ once: true }}
           >
             <BookAIcon className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
@@ -126,7 +98,7 @@ const ContactForm = () => {
             className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 sm:mb-8"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
+            transition={{ delay: 0.1, duration: 0.4 }}
             viewport={{ once: true }}
           >
             <span className="text-primary">
@@ -157,10 +129,10 @@ const ContactForm = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 md:gap-16 lg:gap-20">
           {/* Form section - Responsive */}
           <motion.div
-            className="opacity-0 fade-in-element order-1"
+            className="order-1"
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            transition={{ delay: 0.15, duration: 0.4 }}
             viewport={{ once: true }}
           >
             <div className="bg-background rounded-2xl p-6 sm:p-8 md:p-10 border border-border/50">
@@ -171,10 +143,7 @@ const ContactForm = () => {
                 {/* Name and Email row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-foreground mb-2"
-                    >
+                    <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
                       Full Name *
                     </label>
                     <input
@@ -189,10 +158,7 @@ const ContactForm = () => {
                     />
                   </div>
                   <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-foreground mb-2"
-                    >
+                    <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                       Email Address *
                     </label>
                     <input
@@ -210,10 +176,7 @@ const ContactForm = () => {
 
                 {/* Company field */}
                 <div>
-                  <label
-                    htmlFor="company"
-                    className="block text-sm font-medium text-foreground mb-2"
-                  >
+                  <label htmlFor="company" className="block text-sm font-medium text-foreground mb-2">
                     Company Name
                   </label>
                   <input
@@ -229,10 +192,7 @@ const ContactForm = () => {
 
                 {/* Message field */}
                 <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-sm font-medium text-foreground mb-2"
-                  >
+                  <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
                     Project Details *
                   </label>
                   <textarea
@@ -274,7 +234,7 @@ const ContactForm = () => {
             className="order-2 flex items-center justify-center"
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            transition={{ delay: 0.2, duration: 0.4 }}
             viewport={{ once: true }}
           >
             <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 sm:p-10 md:p-12 w-full max-w-md border border-slate-700/50 relative overflow-hidden">
@@ -287,7 +247,7 @@ const ContactForm = () => {
                   className="mb-8"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8, duration: 0.6 }}
+                  transition={{ delay: 0.25, duration: 0.4 }}
                   viewport={{ once: true }}
                 >
                   <h3 className="text-3xl sm:text-4xl md:text-5xl text-white font-bold leading-tight mb-4">
@@ -303,14 +263,12 @@ const ContactForm = () => {
                   className="space-y-4"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1, duration: 0.6 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
                   viewport={{ once: true }}
                 >
                   <div className="flex items-center gap-2 mb-0">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-white font-semibold">
-                      Let's Connect
-                    </span>
+                    <span className="text-white font-semibold">Let's Connect</span>
                   </div>
 
                   <div className="space-y-2">
@@ -319,9 +277,7 @@ const ContactForm = () => {
                       className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
                     >
                       <Mail className="w-5 h-5" />
-                      <span className="text-sm sm:text-base">
-                        aispaces.in@gmail.com
-                      </span>
+                      <span className="text-sm sm:text-base">aispaces.in@gmail.com</span>
                     </a>
                     <a
                       href="tel:9820483550"
@@ -407,7 +363,7 @@ const ContactForm = () => {
         />
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default ContactForm;
+export default ContactForm

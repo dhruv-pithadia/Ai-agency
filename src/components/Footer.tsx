@@ -2,8 +2,6 @@
 
 import { motion } from "framer-motion"
 import { Linkedin, Heart, Instagram } from "lucide-react"
-import Lottie from "lottie-react"
-import thankyouAnimation from "../hooks/Thankyou.json"
 import BackgroundBlobs from "./BackgroundBlobs"
 import type { LucideIcon } from "lucide-react"
 
@@ -43,7 +41,7 @@ const Footer = () => {
               className="space-y-4"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.6 }}
+              transition={{ duration: 0.2 }} // Removed delay and reduced duration for faster appearance
               viewport={{ once: true }}
             >
               <h3 className="text-sm font-bold text-muted-foreground tracking-wider uppercase">{section.title}</h3>
@@ -71,7 +69,7 @@ const Footer = () => {
           className="relative mb-8 sm:mb-12"
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.3, ease: "easeOut" }} // Reduced duration from 0.8s to 0.3s for faster scaling animation
           viewport={{ once: true }}
         >
           <h1 className="text-6xl sm:text-8xl md:text-9xl lg:text-[12rem] xl:text-[14rem] font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 bg-clip-text text-transparent leading-none tracking-tight">
@@ -91,7 +89,6 @@ const Footer = () => {
               lg:w-32 lg:h-32
             "
           >
-            <Lottie animationData={thankyouAnimation} loop autoplay className="w-full h-full" />
           </div>
         </motion.div>
         {/* Made with love */}
@@ -99,7 +96,7 @@ const Footer = () => {
           className="text-center mt-8 pt-6 bottom-0 border-t border-border/30"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
+          transition={{ duration: 0.2 }} // Removed delay and reduced duration for immediate appearance
           viewport={{ once: true }}
         >
           <p className="text-sm font-nunito text-muted-foreground">

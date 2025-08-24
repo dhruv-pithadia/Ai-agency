@@ -52,6 +52,7 @@ export default function FloatingIcon({
           alt="Floating icon"
           className={twMerge("object-contain", className)} // Ensure it scales nicely
           style={{ opacity, width: "100%", height: "100%" }}
+          loading="lazy"
         />
       )
     }

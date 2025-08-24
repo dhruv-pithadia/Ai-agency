@@ -9,6 +9,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Add the proxy configuration here
+    proxy: {
+      // Any request starting with '/api' will be forwarded
+      '/api': {
+        target: 'http://localhost:3001', // Your backend Express server address
+        changeOrigin: true, // Recommended for security and proper header forwarding
+      },
+    }
   },
   plugins: [
     react(),

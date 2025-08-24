@@ -1,64 +1,53 @@
-"use client";
+"use client"
 
-import { motion, useInView } from "framer-motion";
-import { useState, useCallback, useMemo, memo, useEffect } from "react";
-import {
-  Eye,
-  Users,
-  Calendar,
-  Zap,
-  Target,
-  Mail,
-  Trophy,
-  Building2,
-  Sparkles,
-  ArrowBigUpDash,
-} from "lucide-react";
-import { Heart, Anchor, Star } from "@phosphor-icons/react";
-import { useRef } from "react";
-import { animate } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
-import FloatingIcon from "./icon-background";
-import BackgroundBlobs from "./BackgroundBlobs";
-import lines from "/3lines.svg";
+import { motion, useInView } from "framer-motion"
+import { useState, useCallback, useMemo, memo, useEffect } from "react"
+import { Eye, Users, Calendar, Zap, Target, Mail, Trophy, Building2, Sparkles, ArrowBigUpDash } from "lucide-react"
+import { Heart, Anchor, Star } from "@phosphor-icons/react"
+import { useRef } from "react"
+import { animate } from "framer-motion"
+import type { LucideIcon } from "lucide-react"
+import FloatingIcon from "./icon-background"
+import BackgroundBlobs from "./BackgroundBlobs"
+import lines from "/3lines.svg"
 
 // Type definitions
 interface Statistic {
-  icon: LucideIcon;
-  value: string;
-  label: string;
+  icon: LucideIcon
+  value: string
+  label: string
 }
 
 interface Shape {
-  id: number;
-  title: string;
-  subtitle: string;
-  icon: LucideIcon;
-  color: string;
-  initialPosition: { x: number; y: number };
-  hoverPosition: { x: number; y: number };
-  blobPath: string;
+  id: number
+  title: string
+  subtitle: string
+  icon: LucideIcon
+  color: string
+  initialPosition: { x: number; y: number }
+  hoverPosition: { x: number; y: number }
+  blobPath: string
 }
 
 interface AnimatedCounterProps {
-  from?: number;
-  to: number;
+  from?: number
+  to: number
 }
 
 interface StatisticsGridProps {
-  statistics: Statistic[];
+  statistics: Statistic[]
 }
 
 interface BlobShapeProps {
-  shape: Shape;
-  isHovered: boolean;
+  shape: Shape
+  isHovered: boolean
 }
 
 interface BlobAnimationProps {
-  shapes: Shape[];
-  isHovered: boolean;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
+  shapes: Shape[]
+  isHovered: boolean
+  onMouseEnter: () => void
+  onMouseLeave: () => void
 }
 
 const clients = [
@@ -66,37 +55,37 @@ const clients = [
   { name: "BeHooked", icon: Zap, color: "text-purple-500" },
   { name: "babblebots", icon: Sparkles, color: "text-green-500" },
   { name: "MaaDiy", icon: Star, color: "text-orange-500" },
-];
+]
 
 // AnimatedCounter component with intersection observer
 const AnimatedCounterComponent = ({ from = 0, to }: AnimatedCounterProps) => {
-  const nodeRef = useRef<HTMLSpanElement>(null);
+  const nodeRef = useRef<HTMLSpanElement>(null)
   const isInView = useInView(nodeRef, {
     once: true,
     margin: "-50px 0px 0px 0px",
     amount: "some",
-  });
+  })
 
   useEffect(() => {
     if (isInView) {
-      const node = nodeRef.current;
+      const node = nodeRef.current
       const controls = animate(from, to, {
-        duration: 2.5,
+        duration: 0.8,
         ease: "easeOut",
         onUpdate(value) {
           if (node) {
-            node.textContent = Math.round(value).toLocaleString();
+            node.textContent = Math.round(value).toLocaleString()
           }
         },
-      });
-      return () => controls.stop();
+      })
+      return () => controls.stop()
     }
-  }, [from, to, isInView]);
+  }, [from, to, isInView])
 
-  return <span ref={nodeRef}>{from}</span>;
-};
+  return <span ref={nodeRef}>{from}</span>
+}
 
-export const AnimatedCounter = memo(AnimatedCounterComponent);
+export const AnimatedCounter = memo(AnimatedCounterComponent)
 
 // StatisticsGrid component - Responsive
 
@@ -104,66 +93,62 @@ const StatisticsGridComponent = ({ statistics }: StatisticsGridProps) => {
   return (
     <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
       {statistics.map((stat, index) => {
-        const numericValue = Number.parseInt(stat.value.replace(/\D/g, ""), 10);
-        const suffix = stat.value.replace(/[\d,.]/g, "");
+        const numericValue = Number.parseInt(stat.value.replace(/\D/g, ""), 10)
+        const suffix = stat.value.replace(/[\d,.]/g, "")
         return (
-          // 1. THIS IS THE MAIN CHANGE: We use flexbox to center the entire block vertically.
           <motion.div
             key={`stat-${index}`}
-            className="flex flex-col items-center" // This centers everything below it
+            className="flex flex-col items-center"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{
-              delay: 0.1 + index * 0.1,
-              duration: 0.2,
+              delay: 0,
+              duration: 0.15,
               ease: "easeOut",
             }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-50px" }}
             whileHover={{ scale: 1.05 }}
           >
-            {/* The stat number - this is now centered by its parent */}
             <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-1 sm:mb-2">
               <AnimatedCounter to={numericValue} />
               {suffix}
             </div>
 
-            {/* 2. The icon and label group */}
             <div className="flex items-center md:ml-10 sm:ml-10 gap-2 text-sm sm:text-base md:text-lg text-muted-foreground font-medium font-nunito">
               <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-primary flex-shrink-0" />
-              {/* 3. This forces the text to wrap and aligns it left for readability */}
               <span className="w-32 text-left">{stat.label}</span>
             </div>
           </motion.div>
-        );
+        )
       })}
     </div>
-  );
-};
+  )
+}
 
-export const StatisticsGrid = memo(StatisticsGridComponent);
+export const StatisticsGrid = memo(StatisticsGridComponent)
 
 // BlobShape component - Responsive with proper distances
 const BlobShapeComponent = ({ shape, isHovered }: BlobShapeProps) => {
-  const Icon = shape.icon;
+  const Icon = shape.icon
   const getScaleFactor = () => {
     if (typeof window !== "undefined") {
-      if (window.innerWidth < 640) return 0.5;
-      if (window.innerWidth < 768) return 0.6;
-      if (window.innerWidth < 1024) return 0.8;
-      return 1.0;
+      if (window.innerWidth < 640) return 0.5
+      if (window.innerWidth < 768) return 0.6
+      if (window.innerWidth < 1024) return 0.8
+      return 1.0
     }
-    return 0.6;
-  };
+    return 0.6
+  }
 
-  const [scaleFactor, setScaleFactor] = useState(getScaleFactor);
+  const [scaleFactor, setScaleFactor] = useState(getScaleFactor)
 
   useEffect(() => {
     const handleResize = () => {
-      setScaleFactor(getScaleFactor());
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+      setScaleFactor(getScaleFactor())
+    }
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   return (
     <motion.div
@@ -173,12 +158,8 @@ const BlobShapeComponent = ({ shape, isHovered }: BlobShapeProps) => {
         y: shape.initialPosition.y * scaleFactor,
       }}
       animate={{
-        x: isHovered
-          ? shape.hoverPosition.x * scaleFactor
-          : shape.initialPosition.x * scaleFactor,
-        y: isHovered
-          ? shape.hoverPosition.y * scaleFactor
-          : shape.initialPosition.y * scaleFactor,
+        x: isHovered ? shape.hoverPosition.x * scaleFactor : shape.initialPosition.x * scaleFactor,
+        y: isHovered ? shape.hoverPosition.y * scaleFactor : shape.initialPosition.y * scaleFactor,
         scale: isHovered ? 0.75 : 1,
       }}
       transition={{
@@ -211,14 +192,7 @@ const BlobShapeComponent = ({ shape, isHovered }: BlobShapeProps) => {
         <motion.path
           d={shape.blobPath}
           style={{
-            fill:
-              shape.id === 1
-                ? "#3b82f6"
-                : shape.id === 2
-                  ? "#a855f7"
-                  : shape.id === 3
-                    ? "#10b981"
-                    : "#f97316",
+            fill: shape.id === 1 ? "#3b82f6" : shape.id === 2 ? "#a855f7" : shape.id === 3 ? "#10b981" : "#f97316",
           }}
           animate={{
             d: isHovered
@@ -244,27 +218,18 @@ const BlobShapeComponent = ({ shape, isHovered }: BlobShapeProps) => {
       >
         <div className="flex flex-col items-center font-nunito justify-center text-center">
           <Icon className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 mb-1 sm:mb-2 mx-auto drop-shadow-lg" />
-          <h4 className="text-xs sm:text-sm md:text-base font-bold drop-shadow-md leading-tight">
-            {shape.title}
-          </h4>
-          <p className="text-xs sm:text-sm opacity-90 drop-shadow-sm leading-tight mt-0.5 sm:mt-1">
-            {shape.subtitle}
-          </p>
+          <h4 className="text-xs sm:text-sm md:text-base font-bold drop-shadow-md leading-tight">{shape.title}</h4>
+          <p className="text-xs sm:text-sm opacity-90 drop-shadow-sm leading-tight mt-0.5 sm:mt-1">{shape.subtitle}</p>
         </div>
       </motion.div>
     </motion.div>
-  );
-};
+  )
+}
 
-const BlobShape = memo(BlobShapeComponent);
+const BlobShape = memo(BlobShapeComponent)
 
 // BlobAnimation component - Responsive container
-const BlobAnimationComponent = ({
-  shapes,
-  isHovered,
-  onMouseEnter,
-  onMouseLeave,
-}: BlobAnimationProps) => {
+const BlobAnimationComponent = ({ shapes, isHovered, onMouseEnter, onMouseLeave }: BlobAnimationProps) => {
   return (
     <div
       className="relative w-80 h-80 sm:w-96 sm:h-96 md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] xl:w-[550px] xl:h-[550px] cursor-pointer flex items-center justify-center"
@@ -272,11 +237,7 @@ const BlobAnimationComponent = ({
       onMouseLeave={onMouseLeave}
     >
       {shapes.map((shape) => (
-        <BlobShape
-          key={`blob-${shape.id}`}
-          shape={shape}
-          isHovered={isHovered}
-        />
+        <BlobShape key={`blob-${shape.id}`} shape={shape} isHovered={isHovered} />
       ))}
       <motion.div
         className="absolute inset-0 flex flex-col items-center justify-center text-white"
@@ -318,10 +279,10 @@ const BlobAnimationComponent = ({
           <img
             src="/mainlogo.svg"
             alt="main logo"
+            loading="lazy"
             className="w-16 h-16 sm:w-20 sm:h-20 md:w-20 md:h-20 lg:w-40 lg:h-40 mx-auto drop-shadow-lg"
             style={{
-              filter:
-                "drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06))",
+              filter: "drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06))",
             }}
           />
           <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 md:mb-4 drop-shadow-md">
@@ -330,14 +291,14 @@ const BlobAnimationComponent = ({
         </motion.div>
       </motion.div>
     </div>
-  );
-};
+  )
+}
 
-const BlobAnimation = memo(BlobAnimationComponent);
+const BlobAnimation = memo(BlobAnimationComponent)
 
 const PartnerBrands = () => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isMarqueeHovered, setIsMarqueeHovered] = useState(false);
+  const [isHovered, setIsHovered] = useState(false)
+  const [isMarqueeHovered, setIsMarqueeHovered] = useState(false)
 
   const statistics = useMemo<Statistic[]>(
     () => [
@@ -362,8 +323,8 @@ const PartnerBrands = () => {
         label: "community members",
       },
     ],
-    []
-  );
+    [],
+  )
 
   const shapes = useMemo<Shape[]>(
     () => [
@@ -375,8 +336,7 @@ const PartnerBrands = () => {
         color: "from-blue-500 to-cyan-500",
         initialPosition: { x: -120, y: -120 },
         hoverPosition: { x: -50, y: -50 },
-        blobPath:
-          "M60,20 C80,10 90,30 85,50 C90,70 70,85 50,80 C30,85 10,70 15,50 C10,30 30,10 60,20 Z",
+        blobPath: "M60,20 C80,10 90,30 85,50 C90,70 70,85 50,80 C30,85 10,70 15,50 C10,30 30,10 60,20 Z",
       },
       {
         id: 2,
@@ -386,8 +346,7 @@ const PartnerBrands = () => {
         color: "from-purple-500 to-pink-500",
         initialPosition: { x: 120, y: -120 },
         hoverPosition: { x: 50, y: -50 },
-        blobPath:
-          "M60,20 C80,10 90,30 85,50 C90,70 70,85 50,80 C30,85 10,70 15,50 C10,30 30,10 60,20 Z",
+        blobPath: "M60,20 C80,10 90,30 85,50 C90,70 70,85 50,80 C30,85 10,70 15,50 C10,30 30,10 60,20 Z",
       },
       {
         id: 3,
@@ -397,8 +356,7 @@ const PartnerBrands = () => {
         color: "from-green-500 to-emerald-500",
         initialPosition: { x: -120, y: 120 },
         hoverPosition: { x: -50, y: 50 },
-        blobPath:
-          "M60,20 C80,10 90,30 85,50 C90,70 70,85 50,80 C30,85 10,70 15,50 C10,30 30,10 60,20 Z",
+        blobPath: "M60,20 C80,10 90,30 85,50 C90,70 70,85 50,80 C30,85 10,70 15,50 C10,30 30,10 60,20 Z",
       },
       {
         id: 4,
@@ -408,21 +366,17 @@ const PartnerBrands = () => {
         color: "from-orange-500 to-red-500",
         initialPosition: { x: 120, y: 120 },
         hoverPosition: { x: 50, y: 50 },
-        blobPath:
-          "M60,20 C80,10 90,30 85,50 C90,70 70,85 50,80 C30,85 10,70 15,50 C10,30 30,10 60,20 Z",
+        blobPath: "M60,20 C80,10 90,30 85,50 C90,70 70,85 50,80 C30,85 10,70 15,50 C10,30 30,10 60,20 Z",
       },
     ],
-    []
-  );
+    [],
+  )
 
-  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
-  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+  const handleMouseEnter = useCallback(() => setIsHovered(true), [])
+  const handleMouseLeave = useCallback(() => setIsHovered(false), [])
 
   return (
-    <section
-      className="py-2 sm:py-4 md:py-6 lg:py-8 xl:py-10 2xl:py-12 relative overflow-hidden"
-      id="brand-partners"
-    >
+    <section className="py-2 sm:py-4 md:py-6 lg:py-8 xl:py-10 2xl:py-12 relative overflow-hidden" id="brand-partners">
       <BackgroundBlobs />
 
       {/* Main container with responsive max-width */}
@@ -435,13 +389,11 @@ const PartnerBrands = () => {
             mb-4 sm:mb-5 md:mb-6 lg:mb-8"
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          transition={{ delay: 0, duration: 0.2 }}
           viewport={{ once: true }}
         >
           <Building2 className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
-          <span className="whitespace-nowrap font-nunito">
-            Trusted Partners
-          </span>
+          <span className="whitespace-nowrap font-nunito">Trusted Partners</span>
         </motion.div>
 
         {/* Main content grid - Responsive */}
@@ -450,7 +402,7 @@ const PartnerBrands = () => {
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.3 }}
             className="space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 flex flex-col justify-center order-1"
           >
             <div className="space-y-4 sm:space-y-6 md:space-y-8">
@@ -458,7 +410,7 @@ const PartnerBrands = () => {
                 className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl 2xl:text-3xl font-light font-montserrat leading-tight text-center lg:text-left"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
+                transition={{ delay: 0, duration: 0.25 }}
               >
                 <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-4xl">
                   We've helped AI tool
@@ -483,9 +435,7 @@ const PartnerBrands = () => {
                   go from just launched to
                   <br />
                 </span>
-                <span className="text-primary font-light">
-                  talked about everywhere.
-                </span>
+                <span className="text-primary font-light">talked about everywhere.</span>
               </motion.div>
             </div>
             {/* Statistics Grid */}
@@ -497,7 +447,7 @@ const PartnerBrands = () => {
             className="relative flex items-center justify-center order-2"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.3, delay: 0 }}
           >
             <BlobAnimation
               shapes={shapes}
@@ -526,7 +476,7 @@ const PartnerBrands = () => {
           className="mt-2 sm:mt-4 md:mt-6 lg:mt-8 max-w-4xl mx-auto text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
+          transition={{ delay: 0, duration: 0.25 }}
         >
           <p className="text-xl sm:text-xl text-balance md:text-3xl lg:text-3xl text-foreground leading-relaxed font-nunito">
             Good tools need more than views, they need momentum.
@@ -536,13 +486,13 @@ const PartnerBrands = () => {
             </span>
           </p>
         </motion.div>
-              
+
         {/* Trusted Companies Section */}
         <motion.div
           className="text-center mt-16 sm:mt-20 md:mt-24 lg:mt-28 xl:mt-32 relative"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.3 }}
           viewport={{ once: true }}
         >
           <h2 className="text-xl sm:text-2xl md:text-3xl font-montserrat lg:text-4xl xl:text-5xl font-bold leading-tight mb-3 sm:mb-4 md:mb-6 relative">
@@ -574,11 +524,10 @@ const PartnerBrands = () => {
               max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl mx-auto leading-relaxed"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            transition={{ delay: 0, duration: 0.25 }}
             viewport={{ once: true }}
           >
-            We've partnered with innovative organizations to deliver
-            cutting-edge AI solutions that drive real results
+            We've partnered with innovative organizations to deliver cutting-edge AI solutions that drive real results
           </motion.p>
         </motion.div>
 
@@ -606,7 +555,7 @@ const PartnerBrands = () => {
               }}
             >
               {[...clients, ...clients].map((client, index) => {
-                const Icon = client.icon;
+                const Icon = client.icon
                 return (
                   <motion.div
                     key={`client-${index}`}
@@ -623,7 +572,7 @@ const PartnerBrands = () => {
                       </span>
                     </div>
                   </motion.div>
-                );
+                )
               })}
             </motion.div>
           </motion.div>
@@ -663,7 +612,7 @@ const PartnerBrands = () => {
         />
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default PartnerBrands;
+export default PartnerBrands

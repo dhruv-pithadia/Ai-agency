@@ -1,24 +1,20 @@
-"use client";
+"use client"
 
-import React from "react";
-import Autoplay from "embla-carousel-autoplay";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import { motion } from "framer-motion";
-import { Users } from "lucide-react";
-import { Star, Minus, Circle, Heart, Sparkle } from "@phosphor-icons/react";
-import GlowingButton from "./animated-button";
-import FloatingIcon from "./icon-background";
-import BackgroundBlobs from "./BackgroundBlobs";
+import React from "react"
+import Autoplay from "embla-carousel-autoplay"
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
+import { motion } from "framer-motion"
+import { Users } from "lucide-react"
+import { Star, Minus, Circle, Heart, Sparkle } from "@phosphor-icons/react"
+import GlowingButton from "./animated-button"
+import FloatingIcon from "./icon-background"
+import BackgroundBlobs from "./BackgroundBlobs"
 
 // Updated Project interface and data with emojis
 interface Project {
-  id: number;
-  title: string;
-  image: string;
+  id: number
+  title: string
+  image: string
 }
 
 const projects: Project[] = [
@@ -57,12 +53,10 @@ const projects: Project[] = [
     title: "techbyjairaj",
     image: "/techbyjairaj.png",
   },
-];
+]
 
 const CreatorSection = () => {
-  const plugin = React.useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: true, stopOnMouseEnter: true })
-  );
+  const plugin = React.useRef(Autoplay({ delay: 2000, stopOnInteraction: true, stopOnMouseEnter: true }))
 
   return (
     <section
@@ -81,7 +75,7 @@ const CreatorSection = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.2 }}
             className="mb-6 sm:mb-8 md:mb-10 lg:mb-12"
           >
             {/* Responsive badge */}
@@ -92,13 +86,11 @@ const CreatorSection = () => {
                 mb-4 sm:mb-5 md:mb-6 lg:mb-8"
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              transition={{ duration: 0.15 }}
               viewport={{ once: true }}
             >
               <Users className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
-              <span className="whitespace-nowrap font-nunito">
-                Growing Community
-              </span>
+              <span className="whitespace-nowrap font-nunito">Growing Community</span>
             </motion.div>
 
             {/* Main heading with custom responsive text sizes */}
@@ -151,16 +143,14 @@ const CreatorSection = () => {
                   className="relative inline-block"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.6 }}
+                  transition={{ delay: 0.1, duration: 0.2 }}
                 >
-                  <span className="text-primary relative z-10 border-b-2 border-primary">
-                    10,000+
-                  </span>
+                  <span className="text-primary relative z-10 border-b-2 border-primary">10,000+</span>
                   <motion.div
                     className="absolute inset-0 bg-primary/10 rounded-lg -z-10"
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
-                    transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+                    transition={{ delay: 0.15, duration: 0.3, ease: "easeOut" }}
                   />
                   <motion.div
                     className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1"
@@ -173,8 +163,7 @@ const CreatorSection = () => {
                       repeat: Number.POSITIVE_INFINITY,
                       repeatType: "reverse",
                     }}
-                  >
-                  </motion.div>
+                  ></motion.div>
                 </motion.span>{" "}
                 AI-curious minds
               </span>
@@ -187,10 +176,10 @@ const CreatorSection = () => {
                 leading-relaxed px-2 sm:px-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
+              transition={{ delay: 0.2, duration: 0.2 }}
             >
-              Join a vibrant community of innovators, researchers, and creators
-              pushing the boundaries of artificial intelligence
+              Join a vibrant community of innovators, researchers, and creators pushing the boundaries of artificial
+              intelligence
             </motion.p>
           </motion.div>
 
@@ -207,7 +196,7 @@ const CreatorSection = () => {
               onMouseLeave={() => plugin.current.play()}
             >
               <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4">
-                {projects.map((project) => (
+                {projects.map((project, index) => (
                   <CarouselItem
                     key={project.id}
                     className="pl-2 sm:pl-3 md:pl-4
@@ -224,6 +213,9 @@ const CreatorSection = () => {
                           alt={project.title}
                           className="w-full h-full object-cover group-hover:scale-105
                           transition-transform duration-300"
+                          loading={index < 3 ? "eager" : "lazy"}
+                          decoding="async"
+                          sizes="(max-width: 640px) 75vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
                       </div>
                       {/* Optional: Add title overlay for better mobile experience */}
@@ -232,9 +224,7 @@ const CreatorSection = () => {
                       opacity-0 group-hover:opacity-100 transition-opacity duration-300
                       flex items-end p-3 sm:p-4"
                       >
-                        <h3 className="text-white text-sm sm:text-base font-medium truncate">
-                          {project.title}
-                        </h3>
+                        <h3 className="text-white text-sm sm:text-base font-medium truncate">{project.title}</h3>
                       </div>
                     </div>
                   </CarouselItem>
@@ -249,7 +239,7 @@ const CreatorSection = () => {
               mt-6 sm:mt-8 md:mt-10 lg:mt-12 gap-2 sm:gap-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.6 }}
+            transition={{ delay: 0.3, duration: 0.2 }}
           >
             {/* Button */}
             <div className="py-2.5 px-6 sm:py-3 sm:px-8 md:py-3.5 md:px-10 lg:py-4 lg:px-12">
@@ -262,7 +252,7 @@ const CreatorSection = () => {
                 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg w-full"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.6 }}
+              transition={{ delay: 0.35, duration: 0.2 }}
             >
               <div className="text-center">
                 <p
@@ -333,7 +323,7 @@ const CreatorSection = () => {
         rotationRange={18}
       />
     </section>
-  );
-};
+  )
+}
 
-export default CreatorSection;
+export default CreatorSection
