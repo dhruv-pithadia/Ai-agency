@@ -6,35 +6,35 @@ import svgr from "vite-plugin-svgr"
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  server: {
-    host: "::",
-    port: 8080,
-    // Add the proxy configuration here
-    proxy: {
-      // Any request starting with '/api' will be forwarded
-      '/api': {
-        target: 'http://localhost:3001', // Your backend Express server address
-        changeOrigin: true, // Recommended for security and proper header forwarding
-      },
-    }
-  },
-  plugins: [
-    react(),
-    svgr({
-      // SVGR options
-      svgrOptions: {
-        exportType: "default",
-        ref: true,
-        svgo: false,
-        titleProp: true,
-      },
-      include: "**/*.svg?react",
-    }),
-    mode === "development" && componentTagger(),
-  ].filter(Boolean),
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    server: {
+        host: "::",
+        port: 8080,
+        // Add the proxy configuration here
+        proxy: {
+            // Any request starting with '/api' will be forwarded
+            '/api': {
+                target: 'https://aispaces.in/creators', // Your backend Express server address
+                changeOrigin: true, // Recommended for security and proper header forwarding
+            },
+        }
     },
-  },
+    plugins: [
+        react(),
+        svgr({
+            // SVGR options
+            svgrOptions: {
+                exportType: "default",
+                ref: true,
+                svgo: false,
+                titleProp: true,
+            },
+            include: "**/*.svg?react",
+        }),
+        mode === "development" && componentTagger(),
+    ].filter(Boolean),
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "./src"),
+        },
+    },
 }))
