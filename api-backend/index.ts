@@ -1,15 +1,15 @@
-import express, { type Request, type Response } from "express"
-import nodemailer from "nodemailer"
-import dotenv from "dotenv"
-import cors from "cors"
+import express, { type Request, type Response } from "express";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+import cors from "cors";
+import path from "path"; // We still need the 'path' module
 
 // Load environment variables from .env file
-dotenv.config()
+dotenv.config();
 
-const app = express()
+const app = express();
 // Use the port from the environment for deployment, or default to 3001
-const PORT = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : 3001
-
+const PORT = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : 3001;
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -19,34 +19,36 @@ const transporter = nodemailer.createTransport({
     user: process.env.GMAIL_USER, // Your Gmail address from .env
     pass: process.env.GMAIL_APP_PASSWORD, // Your App Password from .env
   },
-})
+});
 
 // --- Middleware ---
-app.use(cors()) // Use CORS for frontend requests
-app.use(express.json()) // Middleware to parse JSON bodies
+app.use(cors()); // Use CORS for frontend requests
+app.use(express.json()); // Middleware to parse JSON bodies
+
+app.use(express.static(path.join(__dirname, "../client/dist")));
 
 // --- Type Definition ---
 interface SendEmailRequestBody {
-  name?: string
-  email?: string
-  company?: string
-  message?: string
+  name?: string;
+  email?: string;
+  company?: string;
+  message?: string;
 }
 
 // --- API Route ---
 app.post("/api/send-email", async (req: Request<{}, {}, SendEmailRequestBody>, res: Response) => {
-  console.log("Received request to /api/send-email with body:", req.body)
+  console.log("Received request to /api/send-email with body:", req.body);
 
   // Validate that the required environment variables are loaded
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.error("Missing GMAIL_USER or GMAIL_APP_PASSWORD in environment.")
-    return res.status(500).json({ error: "Server configuration error." })
+    console.error("Missing GMAIL_USER or GMAIL_APP_PASSWORD in environment.");
+    return res.status(500).json({ error: "Server configuration error." });
   }
 
   try {
-    const { name, email, company, message } = req.body
+    const { name, email, company, message } = req.body;
     if (!name || !email || !message) {
-      return res.status(400).json({ error: "Missing required fields: name, email, and message are required." })
+      return res.status(400).json({ error: "Missing required fields: name, email, and message are required." });
     }
 
     // --- Email Payload for Nodemailer ---
@@ -60,7 +62,7 @@ app.post("/api/send-email", async (req: Request<{}, {}, SendEmailRequestBody>, r
         <html lang="en">
         <head>
           <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="viewport" content="width=device-width, initial-scale-1.0">
           <title>New Contact Form Message</title>
         </head>
         <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; line-height: 1.6;">
@@ -143,19 +145,24 @@ app.post("/api/send-email", async (req: Request<{}, {}, SendEmailRequestBody>, r
         </body>
         </html>
       `,
-    }
+    };
 
     // --- Send the Email ---
-    await transporter.sendMail(mailOptions)
-    console.log("Email sent successfully!")
-    return res.status(200).json({ message: "Email sent successfully!" })
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully!");
+    return res.status(200).json({ message: "Email sent successfully!" });
   } catch (error) {
-    console.error("Error sending email:", error)
-    return res.status(500).json({ error: "Failed to send email. Please check server logs." })
+    console.error("Error sending email:", error);
+    return res.status(500).json({ error: "Failed to send email. Please check server logs." });
   }
-})
+});
+
+
+app.get("*", (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+});
 
 // Listen on all network interfaces, which is crucial for proxies and deployment
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`API server is running on port ${PORT}`)
-})
+  console.log(`API server is running on port ${PORT}`);
+});
