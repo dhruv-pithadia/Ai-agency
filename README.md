@@ -66,6 +66,7 @@ Ensure you have Node.js and npm (Node Package Manager) installed. We recommend u
     ```
     GMAIL_USER=your-email@gmail.com
     GMAIL_APP_PASSWORD=your-16-character-app-password
+    PORT=3001
     ```
     > **Note:** For `GMAIL_APP_PASSWORD`, you must generate a 16-character "App Password" from your Google Account security settings.
 
