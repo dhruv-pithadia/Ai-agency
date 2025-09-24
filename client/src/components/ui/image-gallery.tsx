@@ -141,10 +141,10 @@ interface Viewport {
   height: number
 }
 
-interface VideoMediaProps {
+interface ImageMediaProps {
   geometry: Plane
   gl: GL
-  video: string
+  image: string
   index: number
   length: number
   renderer: Renderer
@@ -162,11 +162,11 @@ interface VideoMediaProps {
   gapEqualize?: number
 }
 
-class VideoMedia {
+class ImageMedia {
   extra = 0
   geometry: Plane
   gl: GL
-  video: string
+  image: string
   index: number
   length: number
   renderer: Renderer
@@ -198,12 +198,12 @@ class VideoMedia {
   depthStrength: number
   curveYStrength: number
   gapEqualize: number
-  videoElement!: HTMLVideoElement
+  imageElement!: HTMLImageElement
 
   constructor({
     geometry,
     gl,
-    video,
+    image,
     index,
     length,
     renderer,
@@ -219,10 +219,10 @@ class VideoMedia {
     depthStrength,
     curveYStrength,
     gapEqualize,
-  }: VideoMediaProps) {
+  }: ImageMediaProps) {
     this.geometry = geometry
     this.gl = gl
-    this.video = video
+    this.image = image
     this.index = index
     this.length = length
     this.renderer = renderer
@@ -248,29 +248,10 @@ class VideoMedia {
   createShader() {
     const texture = new Texture(this.gl, { generateMipmaps: false })
 
-    // Create video element with optimizations
-    this.videoElement = document.createElement("video")
-    this.videoElement.src = this.video
-    this.videoElement.crossOrigin = "anonymous"
-    this.videoElement.loop = true
-    this.videoElement.muted = true
-    this.videoElement.playsInline = true
-    this.videoElement.autoplay = true
-    this.videoElement.preload = "metadata"
-    this.videoElement.setAttribute("controlsList", "nodownload nofullscreen noremoteplayback")
-    this.videoElement.setAttribute("disablePictureInPicture", "true")
-    this.videoElement.oncontextmenu = (e) => e.preventDefault()
-
-    // Optimize video loading
-    this.videoElement.style.display = "none"
-    document.body.appendChild(this.videoElement)
-
-    // Start loading and playing
-    this.videoElement.load()
-    this.videoElement.play().catch(() => {
-      // Fallback for autoplay restrictions
-      console.log("Autoplay prevented for video:", this.video)
-    })
+    // Create image element
+    this.imageElement = new Image()
+    this.imageElement.crossOrigin = "anonymous"
+    this.imageElement.oncontextmenu = (e) => e.preventDefault()
 
     this.program = new Program(this.gl, {
       depthTest: false,
@@ -289,7 +270,7 @@ class VideoMedia {
     `,
       fragment: `
       precision highp float;
-      uniform vec2 uVideoSizes;
+      uniform vec2 uImageSizes;
       uniform vec2 uPlaneSizes;
       uniform sampler2D tMap;
       uniform float uBorderRadius;
@@ -302,8 +283,8 @@ class VideoMedia {
 
       void main() {
         vec2 ratio = vec2(
-          min((uPlaneSizes.x / uPlaneSizes.y) / (uVideoSizes.x / uVideoSizes.y), 1.0),
-          min((uPlaneSizes.y / uPlaneSizes.x) / (uVideoSizes.y / uVideoSizes.x), 1.0)
+          min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),
+          min((uPlaneSizes.y / uPlaneSizes.x) / (uImageSizes.y / uImageSizes.x), 1.0)
         );
 
         vec2 uv = vec2(
@@ -322,27 +303,23 @@ class VideoMedia {
       uniforms: {
         tMap: { value: texture },
         uPlaneSizes: { value: [0, 0] },
-        uVideoSizes: { value: [9, 16] },
+        uImageSizes: { value: [9, 16] },
         uBorderRadius: { value: this.borderRadius },
       },
       transparent: true,
     })
 
-    // Update texture when video loads
-    this.videoElement.addEventListener("loadedmetadata", () => {
-      texture.image = this.videoElement
-      this.program.uniforms.uVideoSizes.value = [this.videoElement.videoWidth || 9, this.videoElement.videoHeight || 16]
+    this.imageElement.addEventListener("load", () => {
+      texture.image = this.imageElement
+      this.program.uniforms.uImageSizes.value = [
+        this.imageElement.naturalWidth || 9,
+        this.imageElement.naturalHeight || 16,
+      ]
+      texture.needsUpdate = true
     })
 
-    // Continuously update texture for video frames
-    const updateTexture = () => {
-      if (this.videoElement.readyState >= this.videoElement.HAVE_CURRENT_DATA) {
-        texture.image = this.videoElement
-        texture.needsUpdate = true
-      }
-      requestAnimationFrame(updateTexture)
-    }
-    updateTexture()
+    // Load the image
+    this.imageElement.src = this.image
   }
 
   createMesh() {
@@ -428,15 +405,14 @@ class VideoMedia {
   }
 
   destroy() {
-    if (this.videoElement) {
-      this.videoElement.pause()
-      this.videoElement.remove()
+    if (this.imageElement) {
+      this.imageElement.src = ""
     }
   }
 }
 
 interface AppConfig {
-  items?: { video: string; text: string }[]
+  items?: { image: string; text: string }[]
   bend?: number
   textColor?: string
   borderRadius?: number
@@ -449,7 +425,7 @@ interface AppConfig {
   gapEqualize?: number
 }
 
-class VideoApp {
+class ImageApp {
   container: HTMLElement
   scrollSpeed: number
   scroll: {
@@ -467,8 +443,8 @@ class VideoApp {
   scene!: Transform
   planeGeometry!: Plane
 
-  medias: VideoMedia[] = []
-  mediasVideos: { video: string; text: string }[] = []
+  medias: ImageMedia[] = []
+  mediasImages: { image: string; text: string }[] = []
 
   screen!: { width: number; height: number }
   viewport!: { width: number; height: number }
@@ -551,28 +527,28 @@ class VideoApp {
   }
 
   createMedias(
-    items: { video: string; text: string }[] | undefined,
+    items: { image: string; text: string }[] | undefined,
     bend = 1,
     textColor: string,
     borderRadius: number,
     font: string,
   ) {
     const defaultItems = [
-      { video: `/placeholder.mp4?height=1280&width=720&query=modern tech showcase`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=creative design process`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=digital innovation`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=brand storytelling`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=ai technology demo`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=creative workflow`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=marketing campaign`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=product showcase`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=team collaboration`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=business growth`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=creative solutions`, text: "" },
-      { video: `/placeholder.mp4?height=1280&width=720&query=digital transformation`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=modern tech showcase`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=creative design process`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=digital innovation`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=brand storytelling`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=ai technology demo`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=creative workflow`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=marketing campaign`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=product showcase`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=team collaboration`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=business growth`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=creative solutions`, text: "" },
+      { image: `/placeholder.svg?height=1280&width=720&query=digital transformation`, text: "" },
     ]
 
-    const getNumberOfVideos = () => {
+    const getNumberOfImages = () => {
       const width = window.innerWidth
       if (width < 768) return 3
       else if (width >= 768 && width < 1024) return 6
@@ -580,17 +556,17 @@ class VideoApp {
       else return 12
     }
 
-    const numberOfVideos = getNumberOfVideos()
-    const galleryItems = items && items.length ? items.slice(0, numberOfVideos) : defaultItems.slice(0, numberOfVideos)
-    this.mediasVideos = galleryItems.concat(galleryItems)
+    const numberOfImages = getNumberOfImages()
+    const galleryItems = items && items.length ? items.slice(0, numberOfImages) : defaultItems.slice(0, numberOfImages)
+    this.mediasImages = galleryItems.concat(galleryItems)
 
-    this.medias = this.mediasVideos.map((data, index) => {
-      return new VideoMedia({
+    this.medias = this.mediasImages.map((data, index) => {
+      return new ImageMedia({
         geometry: this.planeGeometry,
         gl: this.gl,
-        video: data.video,
+        image: data.image,
         index,
-        length: this.mediasVideos.length,
+        length: this.mediasImages.length,
         renderer: this.renderer,
         scene: this.scene,
         screen: this.screen,
@@ -699,7 +675,7 @@ class VideoApp {
   destroy() {
     window.cancelAnimationFrame(this.raf)
 
-    // Clean up video elements
+    // Clean up image elements
     this.medias.forEach((media) => media.destroy())
 
     window.removeEventListener("resize", this.boundOnResize)
@@ -720,8 +696,8 @@ class VideoApp {
   }
 }
 
-export interface VideoCircularGalleryProps {
-  items?: { video: string; text: string }[]
+export interface ImageCircularGalleryProps {
+  items?: { image: string; text: string }[]
   bend?: number
   textColor?: string
   borderRadius?: number
@@ -734,7 +710,7 @@ export interface VideoCircularGalleryProps {
   gapEqualize?: number
 }
 
-export default function VideoCircularGallery({
+export default function ImageCircularGallery({
   items,
   bend = 6,
   textColor = "#111111",
@@ -746,12 +722,12 @@ export default function VideoCircularGallery({
   depthStrength = 2.0,
   curveYStrength = 1.25,
   gapEqualize = 0.65,
-}: VideoCircularGalleryProps) {
+}: ImageCircularGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!containerRef.current) return
-    const app = new VideoApp(containerRef.current, {
+    const app = new ImageApp(containerRef.current, {
       items,
       bend,
       textColor,
@@ -781,5 +757,9 @@ export default function VideoCircularGallery({
     gapEqualize,
   ])
 
-  return <div className="w-full h-full overflow-hidden cursor-grab active:cursor-grabbing" ref={containerRef} />
-}
+return (
+    <div
+      className="w-full h-full overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto"
+      ref={containerRef}
+    />
+  )}

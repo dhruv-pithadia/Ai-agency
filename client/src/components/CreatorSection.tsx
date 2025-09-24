@@ -243,7 +243,7 @@ const CreatorSection = () => {
           >
             {/* Button */}
             <div className="py-2.5 px-6 sm:py-3 sm:px-8 md:py-3.5 md:px-10 lg:py-4 lg:px-12">
-              <GlowingButton text="Join as Creator" href="google_form_link" />
+              <GlowingButton text="Join as Creator" href="https://form.jotform.com/252613627580458" />
             </div>
 
             {/* Message below button */}

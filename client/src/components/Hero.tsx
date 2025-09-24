@@ -1,109 +1,87 @@
-"use client";
+"use client"
 
-import { useEffect, useState, lazy, Suspense } from "react";
-const Galaxy = lazy(() => import("./Galaxy-bg"));
-const VideoCircularGallery = lazy(
-  () => import("@/components/ui/video-gallery")
-);
-const MobileVideoCarousel = lazy(
-  () => import("@/components/ui/mobile-gallery")
-);
-import GlowingButton from "@/components/animated-button";
-import FloatingIcon from "@/components/icon-background";
+import { useEffect, useState, lazy, Suspense } from "react"
+const Galaxy = lazy(() => import("./Galaxy-bg"))
+const ImageCircularGallery = lazy(() => import("@/components/ui/image-gallery"))
+const MobileImageCarousel = lazy(() => import("@/components/ui/mobile-gallery"))
+import GlowingButton from "@/components/animated-button"
+import FloatingIcon from "@/components/icon-background"
 
 const GalleryPlaceholder = () => (
-  <div
-    className="relative w-full h-[62vh] sm:h-[56vh] md:h-[58vh] lg:h-[60vh]"
-    aria-hidden="true"
-  />
-);
+  <div className="relative w-full h-[62vh] sm:h-[56vh] md:h-[58vh] lg:h-[60vh]" aria-hidden="true" />
+)
 
 export default function Hero() {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile, { passive: true });
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener("resize", checkMobile, { passive: true })
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   // Optional parallax for non-mobile
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile) return
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const elements = document.querySelectorAll<HTMLElement>(".parallax");
+      const scrollY = window.scrollY
+      const elements = document.querySelectorAll<HTMLElement>(".parallax")
       elements.forEach((el) => {
-        const speed = Number.parseFloat(el.dataset.speed || "0.05");
-        const yPos = -scrollY * speed;
-        el.style.setProperty("--parallax-y", `${yPos}px`);
-        el.style.transform = `translate3d(0, var(--parallax-y), 0)`;
-      });
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isMobile]);
+        const speed = Number.parseFloat(el.dataset.speed || "0.05")
+        const yPos = -scrollY * speed
+        el.style.setProperty("--parallax-y", `${yPos}px`)
+        el.style.transform = `translate3d(0, var(--parallax-y), 0)`
+      })
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [isMobile])
 
   const getScrollSpeed = () => {
-    const width = window.innerWidth;
-    if (width < 768) return 2.5;
-    else if (width >= 768 && width < 1024) return 2;
-    else if (width >= 1024 && width < 1280) return 1.5;
-    else return 1;
-  };
+    const width = window.innerWidth
+    if (width < 768) return 2.5
+    else if (width >= 768 && width < 1024) return 2
+    else if (width >= 1024 && width < 1280) return 1.5
+    else return 1
+  }
 
-  const videoData = [
-    { video: `/1.mp4`, text: "Gaga Showcase" },
-    { video: `/2.mp4`, text: "Creative Get Process" },
-    { video: `/3.mp4`, text: "Video Editing" },
-    { video: `4.mp4`, text: "Master Programming" },
-    { video: `/5.mp4`, text: "Future AI" },
-    { video: `/6.mp4`, text: "Easy Scraping" },
-  ];
+  const imageData = [
+    { image: `/1.jpg`, text: "" },
+    { image: `/2.jpg`, text: "" },
+    { image: `/3.jpg`, text: "" },
+    { image: `/4.jpg`, text: "" },
+    { image: `/5.jpg`, text: "" },
+    { image: `/6.jpg`, text: "" },
+  ]
 
-  const mobileVideoUrls: string[] = videoData
-    .slice(0, 3)
-    .map((item) => item.video);
+  const mobileImageUrls: string[] = imageData.slice(0, 3).map((item) => item.image)
 
   useEffect(() => {
-    const preloadVideos = () => {
-      const videosToPreload = isMobile
-        ? mobileVideoUrls.slice(0, 1)
-        : videoData.slice(0, 2);
-      videosToPreload.forEach((videoSrc) => {
-        const video = document.createElement("video");
-        video.preload = "metadata";
-        video.src = typeof videoSrc === "string" ? videoSrc : videoSrc.video;
-      });
-    };
+    const preloadImages = () => {
+      const imagesToPreload = isMobile ? mobileImageUrls.slice(0, 1) : imageData.slice(0, 2)
+      imagesToPreload.forEach((imageSrc) => {
+        const img = new Image()
+        img.src = typeof imageSrc === "string" ? imageSrc : imageSrc.image
+      })
+    }
 
     // Preload after a short delay to not block initial render
-    const timer = setTimeout(preloadVideos, 100);
-    return () => clearTimeout(timer);
-  }, [isMobile, mobileVideoUrls]);
+    const timer = setTimeout(preloadImages, 100)
+    return () => clearTimeout(timer)
+  }, [isMobile, mobileImageUrls])
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen overflow-hidden"
-      aria-label="Hero section"
-    >
+    <section id="hero" className="relative min-h-screen overflow-hidden" aria-label="Hero section">
       <Suspense fallback={null}>
         <div style={{ width: "100%", height: "1000px", position: "absolute" }}>
-          <Galaxy
-            mouseRepulsion
-            mouseInteraction
-            density={0.2}
-            glowIntensity={0.2}
-            repulsionStrength={0.5}
-          />
+          <Galaxy mouseRepulsion mouseInteraction density={0.2} glowIntensity={0.2} repulsionStrength={0.5} />
         </div>
       </Suspense>
 
       <div className="pt-24 sm:pt-20 md:pt-24 bg-transparent">
         <div className="px-4 sm:px-6">
-          <div className="mx-auto max-w-4xl mt-5 text-center">
+          <div className="mx-auto z-30 max-w-4xl mt-5 text-center">
             {/* Headline */}
             <div
               className="font-bold leading-tight opacity-0 animate-fade-in font-montserrat text-xl sm:text-2xl md:text-2xl lg:text-4xl tracking-tight"
@@ -150,7 +128,7 @@ export default function Hero() {
 
             {/* CTA */}
             <div
-              className="opacity-0 animate-fade-in mt-5 mx-auto w-[150px] sm:w-[160px]"
+              className="opacity-0 animate-fade-in mt-5 mx-auto w-[150px] sm:w-[160px] relative z-50"
               style={{ animationDelay: "0.2s" }}
             >
               <GlowingButton text="Get In Touch" href="#contact" />
@@ -159,7 +137,7 @@ export default function Hero() {
         </div>
 
         {/* Bottom curved gallery */}
-        <div className="relative mx-auto -mt-14 w-full px-2 sm:px-4">
+        <div className="relative z-20 mx-auto -mt-14 w-full px-2 sm:px-4">
           {/* Optional parallax glow */}
           <div
             className="pointer-events-none hidden lg:block absolute -bottom-10 left-1/4 w-64 h-64 xl:w-80 xl:h-80 bg-primary/10 rounded-full blur-3xl -z-10 parallax"
@@ -169,16 +147,12 @@ export default function Hero() {
           <Suspense fallback={<GalleryPlaceholder />}>
             {isMobile ? (
               <div className="relative w-full pt-20 px-4 py-8">
-                <MobileVideoCarousel
-                  videos={mobileVideoUrls}
-                  autoplayDelay={4000}
-                  className="max-w-sm mx-auto"
-                />
+                <MobileImageCarousel images={mobileImageUrls} autoplayDelay={4000} className="max-w-sm mx-auto" />
               </div>
             ) : (
-              <div className="relative w-full h-[62vh] sm:h-[56vh] md:h-[58vh] lg:h-[60vh]">
-                <VideoCircularGallery
-                  items={videoData}
+              <div className="relative w-full h-[62vh] sm:h-[56vh] md:h-[58vh] lg:h-[60vh] z-10">
+                <ImageCircularGallery
+                  items={imageData}
                   bend={-5}
                   skewStrength={3.0}
                   depthStrength={2.0}
@@ -196,5 +170,5 @@ export default function Hero() {
         </div>
       </div>
     </section>
-  );
+  )
 }
